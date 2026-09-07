@@ -32,13 +32,11 @@ These rules are mandatory:
 Before implementing any feature:
 
 1. If `PROJECT_SPEC.md` does not exist, copy `PROJECT_SPEC.template.md`, complete the required product decisions, and do not begin implementation.
-2. Read `PROJECT_SPEC.md`.
-3. Read `ARCHITECTURE.md`.
-4. Read `DESIGN_SYSTEM.md`.
-5. Read relevant engineering rules.
-6. Read the current Phase specification.
-7. Inspect the existing codebase and reusable components.
-8. Identify required:
+2. Identify the current Phase and Feature type.
+3. Run `python3 scripts/framework_route.py --phase <NN> --feature <type> --json` and read only the returned Bootstrap, Phase pack, and Feature overlay.
+4. Read a deep rule only when the returned checks identify a matching risk.
+5. Inspect the existing codebase and reusable components.
+6. Identify required:
 
    * Frontend changes
    * Backend changes
@@ -50,7 +48,7 @@ Before implementing any feature:
    * Security
    * UX requirements
 
-Do not start implementation until the required scope is understood.
+Do not read the entire rules directory by default. Do not start implementation until the returned context pack and required scope are understood.
 
 Security, privacy, legal, and platform constraints are non-overridable. A project specification may define product behavior and project-specific choices, but it MUST NOT weaken those constraints or silently override global engineering rules.
 

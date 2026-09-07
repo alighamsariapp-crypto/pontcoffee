@@ -24,7 +24,8 @@ def check_required(errors: list[str]) -> None:
     required = [
         "AGENTS.md", "README.md", "PROJECT_SPEC.template.md", "SECURITY_RULES.md",
         "TESTING_RULES.md", "scripts/framework_check.py", "scripts/framework_route.py",
-        "config/route-map.json", "skills/google-ai-studio/SKILL.md",
+        "config/route-map.json", "config/phase-map.json", "CONTEXT_LOADING.md",
+        "skills/google-ai-studio/SKILL.md",
     ]
     for item in required:
         if not (ROOT / item).is_file():
@@ -83,6 +84,26 @@ def check_route_map(errors: list[str]) -> None:
                 fail(errors, f"route {kind} points to missing file: {item}")
         if len(route.get("read", [])) > 5:
             fail(errors, f"route {kind} reads too many canonical files: {len(route['read'])}")
+
+    phase_file = ROOT / "config/phase-map.json"
+    if not phase_file.is_file():
+        return
+    try:
+        phase_data = json.loads(phase_file.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(errors, f"invalid phase map JSON: {exc}")
+        return
+    limits = phase_data.get("policy", {})
+    if len(phase_data.get("bootstrap", [])) > limits.get("bootstrap_max_files", 3):
+        fail(errors, "bootstrap context exceeds configured limit")
+    for phase_id, phase in phase_data.get("phases", {}).items():
+        if len(phase.get("read", [])) > limits.get("phase_max_files", 5):
+            fail(errors, f"phase {phase_id} reads too many canonical files")
+        for item in phase.get("read", []) + phase.get("skills", []):
+            if item == "PROJECT_SPEC.md" and (ROOT / "PROJECT_SPEC.template.md").is_file():
+                continue
+            if not (ROOT / item).is_file():
+                fail(errors, f"phase {phase_id} points to missing file: {item}")
 
 
 def check_duplicates(errors: list[str]) -> None:

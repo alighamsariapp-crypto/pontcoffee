@@ -44,15 +44,15 @@ Do not ask the assistant to build the entire application in one prompt. Work fea
 
 ## Low-context routing
 
-Do not load all governance files for every Feature. Select a feature type and print the smallest canonical reading set:
+Do not load all governance files for every Feature. Select the current Phase and, when implementation begins, add one Feature overlay:
 
 ```bash
-python3 scripts/framework_route.py frontend
-python3 scripts/framework_route.py api
-python3 scripts/framework_route.py ai
+python3 scripts/framework_route.py --phase 01
+python3 scripts/framework_route.py --phase 04 --feature frontend
+python3 scripts/framework_route.py --phase 04 --feature ai --json
 ```
 
-The routing table is maintained in `config/route-map.json`. Each route is deliberately limited to a small number of canonical rules and lists the Skills and checks that apply. The executable checker fails if a route points to a missing file or grows beyond the context limit.
+The routing tables are maintained in `config/phase-map.json` and `config/route-map.json`. Each Phase pack has a small reading budget, and the Feature overlay is loaded only after the active Feature is known. The executable checker fails if a pack points to a missing file or grows beyond the context limit. See `CONTEXT_LOADING.md` for the session protocol.
 
 ## Executable enforcement
 

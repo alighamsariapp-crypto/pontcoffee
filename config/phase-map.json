@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "policy": {
+    "bootstrap_max_files": 3,
+    "phase_max_files": 5,
+    "feature_overlay_max_files": 3,
+    "rule": "Read the phase pack first. Add one feature overlay only when the active feature requires it. Load deep rules on demand after an identified risk."
+  },
+  "bootstrap": ["AGENTS.md", "config/route-map.json", "README.md"],
+  "phases": {
+    "00": {
+      "name": "Discovery and audit",
+      "read": ["AGENTS.md", "ROADMAP.md", "skills/audit/SKILL.md", "phases/PHASE_00_AUDIT.template.md"],
+      "skills": ["skills/audit/SKILL.md"],
+      "checks": ["repository inventory", "unknowns", "risks", "existing behavior"]
+    },
+    "01": {
+      "name": "Project specification",
+      "read": ["AGENTS.md", "PROJECT_SPEC.template.md", "ROADMAP.md", "skills/product-discovery/SKILL.md"],
+      "skills": ["skills/product-discovery/SKILL.md"],
+      "checks": ["users", "journeys", "MVP scope", "acceptance criteria"]
+    },
+    "02": {
+      "name": "UX and UI design",
+      "read": ["AGENTS.md", "PROJECT_SPEC.md", "DESIGN_SYSTEM.md", "UX_RULES.md"],
+      "skills": ["skills/design-workflow/SKILL.md", "skills/accessibility/SKILL.md"],
+      "checks": ["information architecture", "responsive UX", "states", "accessibility"]
+    },
+    "03": {
+      "name": "Architecture and technical planning",
+      "read": ["AGENTS.md", "PROJECT_SPEC.md", "ARCHITECTURE.md", "CODING_RULES.md"],
+      "skills": ["skills/backend/SKILL.md", "skills/database/SKILL.md"],
+      "checks": ["boundaries", "data model", "API surface", "decisions"]
+    },
+    "04": {
+      "name": "Feature implementation",
+      "read": ["AGENTS.md", "PROJECT_SPEC.md", "skills/google-ai-studio/SKILL.md"],
+      "skills": ["skills/feature-development/SKILL.md"],
+      "checks": ["scope", "impact", "real integration", "loading/error/empty states"]
+    },
+    "05": {
+      "name": "Integration and completion",
+      "read": ["AGENTS.md", "PROJECT_SPEC.md", "API_RULES.md", "DATABASE_RULES.md"],
+      "skills": ["skills/api/SKILL.md", "skills/database/SKILL.md"],
+      "checks": ["contracts", "persistence", "authorization", "end-to-end flow"]
+    },
+    "06": {
+      "name": "Testing and security",
+      "read": ["AGENTS.md", "PROJECT_SPEC.md", "TESTING_RULES.md", "SECURITY_RULES.md"],
+      "skills": ["skills/testing/SKILL.md", "skills/security/SKILL.md"],
+      "checks": ["failure paths", "authorization", "responsive", "accessibility", "regression"]
+    },
+    "07": {
+      "name": "Final audit and quality gate",
+      "read": ["AGENTS.md", "PROJECT_SPEC.md", "DEPLOYMENT_RULES.md", "OBSERVABILITY_RULES.md"],
+      "skills": ["skills/audit/SKILL.md", "skills/deployment/SKILL.md"],
+      "checks": ["build", "health", "smoke test", "monitoring", "rollback"]
+    }
+  }
+}
