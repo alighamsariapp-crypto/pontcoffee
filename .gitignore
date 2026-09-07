@@ -1,0 +1,24 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*service-account*.json
+
+# Dependencies and builds
+node_modules/
+dist/
+build/
+.next/
+coverage/
+.firebase/
+
+# Local tools and OS files
+.DS_Store
+.vscode/
+.idea/
+
+# Temporary project outputs
+skills-temp/
+*.log

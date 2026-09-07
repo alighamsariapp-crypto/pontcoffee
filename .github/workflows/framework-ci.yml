@@ -1,0 +1,59 @@
+name: Framework CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: framework-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  markdown:
+    name: Markdown and structure checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check required files
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(AGENTS.md README.md PROJECT_SPEC.template.md SECURITY_RULES.md TESTING_RULES.md)
+          for file in "${required[@]}"; do
+            test -f "$file" || { echo "Missing required file: $file"; exit 1; }
+          done
+
+      - name: Check markdown files are non-empty
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            test -s "$file" || { echo "Empty markdown file: $file"; exit 1; }
+          done < <(find . -type f -name '*.md' -not -path './.git/*' -print0)
+
+      - name: Check accidental secrets and temporary folders
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(find . -type d -name 'skills-temp' -not -path './.git/*' -print -quit)"
+          test -z "$(find . -type f \( -name '.env' -o -name '*.pem' -o -name '*.key' -o -name '*service-account*.json' \) -not -path './.git/*' -print -quit)"
+
+  yaml:
+    name: YAML syntax checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Parse workflow YAML
+        shell: ruby {0}
+        run: |
+          require 'yaml'
+          Dir['.github/workflows/*.yml', '.github/workflows/*.yaml'].each do |file|
+            YAML.load_file(file)
+            puts "Valid YAML: #{file}"
+          end
