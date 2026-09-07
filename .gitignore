@@ -13,6 +13,8 @@ build/
 .next/
 coverage/
 .firebase/
+__pycache__/
+*.pyc
 
 # Local tools and OS files
 .DS_Store
