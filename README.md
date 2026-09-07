@@ -65,6 +65,19 @@ python3 scripts/framework_check.py --project
 
 The first command validates the framework repository. The project mode additionally requires a completed `PROJECT_SPEC.md`. The GitHub workflow runs the same structural checks, and `scripts/install-hooks.sh` installs the same check as a local pre-commit hook.
 
+## Project quality gate
+
+When this framework is copied into a real application, create the `.webtow/` state files from `templates/project-state/`. Then gate progression with:
+
+```bash
+python3 scripts/project_gate.py --phase 03
+python3 scripts/project_gate.py --feature F-003
+```
+
+`framework_check.py` checks the reusable framework. `project_gate.py` checks the application workflow: previous Phases must be `PASS`, the current Phase must have a report and evidence, and a Feature must have its specification, report, audit, declared checks, and no blockers. `IN_PROGRESS`, `NOT_RUN`, `WARN`, `BLOCKED`, and missing values never pass.
+
+The generated application must have its own CI pipeline for install, typecheck, lint, unit, integration/API, E2E, security, build, accessibility, responsive, and other project-specific checks. The framework CI is not a substitute for that pipeline.
+
 ## Repository structure
 
 ```text

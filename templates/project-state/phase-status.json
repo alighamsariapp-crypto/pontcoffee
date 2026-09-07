@@ -1,0 +1,18 @@
+{
+  "current_phase": "00",
+  "phases": {
+    "00": {
+      "status": "IN_PROGRESS",
+      "report": ".webtow/phases/PHASE_00_AUDIT.md",
+      "blockers": [],
+      "required_evidence": []
+    },
+    "01": {"status": "LOCKED", "report": ".webtow/phases/PHASE_01_SPECIFICATION.md", "blockers": [], "required_evidence": []},
+    "02": {"status": "LOCKED", "report": ".webtow/phases/PHASE_02_DESIGN.md", "blockers": [], "required_evidence": []},
+    "03": {"status": "LOCKED", "report": ".webtow/phases/PHASE_03_ARCHITECTURE.md", "blockers": [], "required_evidence": []},
+    "04": {"status": "LOCKED", "report": ".webtow/phases/PHASE_04_IMPLEMENTATION.md", "blockers": [], "required_evidence": []},
+    "05": {"status": "LOCKED", "report": ".webtow/phases/PHASE_05_INTEGRATION.md", "blockers": [], "required_evidence": []},
+    "06": {"status": "LOCKED", "report": ".webtow/phases/PHASE_06_TESTING.md", "blockers": [], "required_evidence": []},
+    "07": {"status": "LOCKED", "report": ".webtow/phases/PHASE_07_FINAL_AUDIT.md", "blockers": [], "required_evidence": []}
+  }
+}

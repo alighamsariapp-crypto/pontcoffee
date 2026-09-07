@@ -1,0 +1,53 @@
+# Copy this file into the generated application and remove checks that are truly N/A.
+name: Project CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  project-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Integration and API tests
+        run: npm run test:integration
+
+      - name: E2E tests
+        run: npm run test:e2e
+
+      - name: Security checks
+        run: npm run test:security
+
+      - name: Accessibility and responsive checks
+        run: npm run test:ux
+
+      - name: Build
+        run: npm run build
+
+      - name: Project quality gate
+        run: python3 scripts/project_gate.py --feature "$FEATURE_ID"
+        env:
+          FEATURE_ID: F-000

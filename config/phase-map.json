@@ -28,7 +28,7 @@
     },
     "03": {
       "name": "Architecture and technical planning",
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "ARCHITECTURE.md", "CODING_RULES.md"],
+      "read": ["PROJECT_SPEC.md", "ARCHITECTURE.md", "DATABASE_RULES.md", "API_RULES.md", "SECURITY_RULES.md"],
       "skills": ["skills/backend/SKILL.md", "skills/database/SKILL.md"],
       "checks": ["boundaries", "data model", "API surface", "decisions"]
     },
@@ -52,7 +52,7 @@
     },
     "07": {
       "name": "Final audit and quality gate",
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "DEPLOYMENT_RULES.md", "OBSERVABILITY_RULES.md"],
+      "read": ["PROJECT_SPEC.md", "SECURITY_RULES.md", "TESTING_RULES.md", "UX_RULES.md", "PERFORMANCE_RULES.md"],
       "skills": ["skills/audit/SKILL.md", "skills/deployment/SKILL.md"],
       "checks": ["build", "health", "smoke test", "monitoring", "rollback"]
     }

@@ -25,6 +25,8 @@ def check_required(errors: list[str]) -> None:
         "AGENTS.md", "README.md", "PROJECT_SPEC.template.md", "SECURITY_RULES.md",
         "TESTING_RULES.md", "scripts/framework_check.py", "scripts/framework_route.py",
         "config/route-map.json", "config/phase-map.json", "CONTEXT_LOADING.md",
+        "PROJECT_QUALITY_GATE.md", "scripts/project_gate.py",
+        "templates/project-state/phase-status.json", "templates/project-state/feature-status.json",
         "skills/google-ai-studio/SKILL.md",
     ]
     for item in required:
@@ -46,6 +48,8 @@ def check_references(errors: list[str]) -> None:
         inline_refs = set(re.findall(r"`([^`]+)`", text))
         for ref in PATH_RE.findall(text):
             if ref in IGNORED_REFERENCE_NAMES or ref.startswith(("http://", "https://")):
+                continue
+            if "XX" in ref or "000" in ref:
                 continue
             if ref.startswith(("[", "#")):
                 continue

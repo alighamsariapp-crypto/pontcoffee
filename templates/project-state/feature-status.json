@@ -1,0 +1,16 @@
+{
+  "id": "F-000",
+  "phase": "04",
+  "status": "IN_PROGRESS",
+  "blockers": [],
+  "required_artifacts": ["FEATURE_SPEC.md", "PHASE_REPORT.md", "AUDIT.md"],
+  "required_checks": ["typecheck", "lint", "unit", "integration", "security"],
+  "checks": {
+    "typecheck": "NOT_RUN",
+    "lint": "NOT_RUN",
+    "unit": "NOT_RUN",
+    "integration": "NOT_RUN",
+    "security": "NOT_RUN"
+  },
+  "audit": {"status": "NOT_RUN", "report": "AUDIT.md"}
+}
