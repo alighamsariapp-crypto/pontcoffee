@@ -12,7 +12,8 @@ It provides:
 - architecture, security, API, database, UX, SEO, performance, privacy, and deployment rules;
 - Skills that define how an AI assistant should work;
 - phase, audit, release, and decision templates;
-- CI validation for this framework repository.
+- executable validation for references, structure, secrets, duplicate documents, and route-map integrity;
+- a low-context feature router and an installable pre-commit hook.
 
 ## Quick start
 
@@ -22,7 +23,8 @@ It provides:
 4. Create the required feature specifications from `templates/FEATURE_SPEC.template.md`.
 5. Use the phase templates under `phases/` to record progress.
 6. Add the actual application source code and its package manager configuration.
-7. Run the project-specific CI checks before release.
+7. Install the local gate with `bash scripts/install-hooks.sh`.
+8. Run `python3 scripts/framework_check.py` before release.
 
 If `PROJECT_SPEC.md` does not exist, an AI assistant MUST create it from the template and MUST NOT start implementation until the required decisions are complete.
 
@@ -40,16 +42,47 @@ Read → Scope → Impact analysis → Plan → Implement → Integrate → Veri
 
 Do not ask the assistant to build the entire application in one prompt. Work feature by feature and keep changes small and reversible.
 
+## Low-context routing
+
+Do not load all governance files for every Feature. Select a feature type and print the smallest canonical reading set:
+
+```bash
+python3 scripts/framework_route.py frontend
+python3 scripts/framework_route.py api
+python3 scripts/framework_route.py ai
+```
+
+The routing table is maintained in `config/route-map.json`. Each route is deliberately limited to a small number of canonical rules and lists the Skills and checks that apply. The executable checker fails if a route points to a missing file or grows beyond the context limit.
+
+## Executable enforcement
+
+The framework cannot prove that an external AI agent followed prose instructions during generation. It can, however, fail the change before merge when repository-level invariants are violated. Run:
+
+```bash
+python3 scripts/framework_check.py
+python3 scripts/framework_check.py --project
+```
+
+The first command validates the framework repository. The project mode additionally requires a completed `PROJECT_SPEC.md`. The GitHub workflow runs the same structural checks, and `scripts/install-hooks.sh` installs the same check as a local pre-commit hook.
+
 ## Repository structure
 
 ```text
-AGENTS.md                  AI operating rules
-PROJECT_SPEC.template.md   Project specification template
-SKILLS/                    Procedure-specific AI Skills
-templates/                 Feature, API, data, ADR, and release templates
-phases/                    Phase report templates
-audits/                    Audit report templates
-.github/workflows/          Framework CI
+AGENTS.md / DEVELOPMENT_RULES.md / CODING_RULES.md   Operating and engineering rules
+PROJECT_SPEC.template.md / ROADMAP.md                 Product and delivery templates
+ARCHITECTURE.md / DESIGN_SYSTEM.md / UX_RULES.md      Architecture and experience rules
+API_RULES.md / DATABASE_RULES.md / FIREBASE_RULES.md   Data and integration rules
+SECURITY_RULES.md / AI_SECURITY_RULES.md               Security rules
+TESTING_RULES.md / PERFORMANCE_RULES.md                Quality rules
+SEO_RULES.md / CONTENT_RULES.md / PRIVACY_RULES.md     Public-content rules
+DEPLOYMENT_RULES.md / OBSERVABILITY_RULES.md            Operations rules
+COST_AND_QUOTA_RULES.md                                Cost and quota rules
+skills/                                                 Procedure-specific AI Skills
+config/route-map.json                                   Low-context feature routing
+scripts/                                                Executable checks, router, and hook installer
+templates/                                              Feature, API, data, ADR, and release templates
+phases/ / audits/                                       Phase and audit templates
+.github/workflows/                                      Framework CI
 ```
 
 ## Project-specific files

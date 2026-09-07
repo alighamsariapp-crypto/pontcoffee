@@ -122,7 +122,7 @@ AI MUST identify:
 ## Output
 
 ```text
-phases/PHASE_00_AUDIT.md
+phases/PHASE_00_AUDIT.template.md
 ```
 
 ## Gate

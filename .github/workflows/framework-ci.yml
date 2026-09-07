@@ -43,6 +43,12 @@ jobs:
           test -z "$(find . -type d -name 'skills-temp' -not -path './.git/*' -print -quit)"
           test -z "$(find . -type f \( -name '.env' -o -name '*.pem' -o -name '*.key' -o -name '*service-account*.json' \) -not -path './.git/*' -print -quit)"
 
+      - name: Run executable framework gate
+        run: python3 scripts/framework_check.py
+
+      - name: Verify routing CLI
+        run: python3 scripts/framework_route.py ai --json
+
   yaml:
     name: YAML syntax checks
     runs-on: ubuntu-latest
