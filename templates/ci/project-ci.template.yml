@@ -50,4 +50,4 @@ jobs:
       - name: Project quality gate
         run: python3 scripts/framework_check.py --project --feature "$FEATURE_ID"
         env:
-          FEATURE_ID: F-000
+          FEATURE_ID: ${{ vars.WEBTOW_FEATURE_ID }}

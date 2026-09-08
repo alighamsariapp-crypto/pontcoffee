@@ -2,7 +2,7 @@
   "version": 1,
   "policy": {
     "bootstrap_max_files": 3,
-    "phase_max_files": 6,
+    "phase_max_files": 7,
     "feature_overlay_max_files": 3,
     "rule": "Read the phase pack first. Add one feature overlay only when the active feature requires it. Load deep rules on demand after an identified risk."
   },
@@ -28,7 +28,7 @@
     },
     "03": {
       "name": "Architecture and technical planning",
-      "read": ["PROJECT_SPEC.md", "ARCHITECTURE.md", "DATABASE_RULES.md", "API_RULES.md", "SECURITY_RULES.md"],
+      "read": ["AGENTS.md", "PROJECT_SPEC.md", "ARCHITECTURE.md", "DATABASE_RULES.md", "API_RULES.md", "SECURITY_RULES.md"],
       "skills": ["skills/backend/SKILL.md", "skills/database/SKILL.md"],
       "checks": ["boundaries", "data model", "API surface", "decisions"]
     },
@@ -52,7 +52,7 @@
     },
     "07": {
       "name": "Final audit and quality gate",
-      "read": ["PROJECT_SPEC.md", "SECURITY_RULES.md", "TESTING_RULES.md", "UX_RULES.md", "PERFORMANCE_RULES.md", "API_RULES.md"],
+      "read": ["AGENTS.md", "PROJECT_SPEC.md", "SECURITY_RULES.md", "TESTING_RULES.md", "UX_RULES.md", "PERFORMANCE_RULES.md", "API_RULES.md"],
       "skills": ["skills/audit/SKILL.md", "skills/deployment/SKILL.md", "skills/accessibility/SKILL.md", "skills/api/SKILL.md", "skills/database/SKILL.md"],
       "checks": ["integration", "accessibility", "build", "health", "smoke test", "monitoring", "rollback"]
     }

@@ -78,9 +78,19 @@ def check_route_map(errors: list[str]) -> None:
     except json.JSONDecodeError as exc:
         fail(errors, f"invalid route map JSON: {exc}")
         return
+    phase_file = ROOT / "config/phase-map.json"
+    phase_policy = {}
+    if phase_file.is_file():
+        try:
+            phase_policy = json.loads(phase_file.read_text(encoding="utf-8")).get("policy", {})
+        except json.JSONDecodeError as exc:
+            fail(errors, f"invalid phase map JSON: {exc}")
+    overlay_limit = phase_policy.get("feature_overlay_max_files", 3)
     for kind, route in data.get("routes", {}).items():
         if not route.get("read"):
             fail(errors, f"route {kind} has no read list")
+        if len(route.get("read", [])) > overlay_limit:
+            fail(errors, f"feature overlay {kind} exceeds context limit: {len(route['read'])} > {overlay_limit}")
         for item in route.get("read", []) + route.get("skills", []):
             if item == "PROJECT_SPEC.md" and (ROOT / "PROJECT_SPEC.template.md").is_file():
                 continue
@@ -89,7 +99,6 @@ def check_route_map(errors: list[str]) -> None:
         if len(route.get("read", [])) > 5:
             fail(errors, f"route {kind} reads too many canonical files: {len(route['read'])}")
 
-    phase_file = ROOT / "config/phase-map.json"
     if not phase_file.is_file():
         return
     try:
@@ -159,8 +168,8 @@ def main() -> int:
             fail(errors, "project mode requires --phase or --feature")
         if args.phase or args.feature:
             try:
-                from project_gate import check_phase, check_feature
-                gate_errors = check_phase(ROOT, args.phase) if args.phase else check_feature(ROOT, args.feature)
+                from project_gate import check_phase_completion, check_feature_completion
+                gate_errors = check_phase_completion(ROOT, args.phase) if args.phase else check_feature_completion(ROOT, args.feature)
                 errors.extend(f"project gate: {item}" for item in gate_errors)
             except ValueError as exc:
                 errors.append(f"project gate: {exc}")

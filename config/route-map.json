@@ -3,47 +3,47 @@
   "usage": "python3 scripts/framework_route.py <feature_type>",
   "routes": {
     "frontend": {
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "DESIGN_SYSTEM.md", "UX_RULES.md"],
+      "read": ["DESIGN_SYSTEM.md", "UX_RULES.md"],
       "skills": ["skills/frontend/SKILL.md", "skills/accessibility/SKILL.md"],
       "checks": ["responsive", "accessibility", "component states", "frontend tests"]
     },
     "backend": {
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "ARCHITECTURE.md", "SECURITY_RULES.md"],
+      "read": ["ARCHITECTURE.md", "SECURITY_RULES.md"],
       "skills": ["skills/backend/SKILL.md", "skills/testing/SKILL.md"],
       "checks": ["validation", "authorization", "integration tests", "error handling"]
     },
     "api": {
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "API_RULES.md", "SECURITY_RULES.md"],
+      "read": ["API_RULES.md", "SECURITY_RULES.md"],
       "skills": ["skills/api/SKILL.md", "skills/testing/SKILL.md"],
       "checks": ["contract", "auth", "validation", "rate limit", "API tests"]
     },
     "database": {
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "DATABASE_RULES.md", "SECURITY_RULES.md"],
+      "read": ["DATABASE_RULES.md", "SECURITY_RULES.md"],
       "skills": ["skills/database/SKILL.md", "skills/firebase/SKILL.md"],
       "checks": ["schema", "rules", "indexes", "migration", "integration tests"]
     },
     "firebase": {
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "FIREBASE_RULES.md", "DEPLOYMENT_RULES.md"],
+      "read": ["FIREBASE_RULES.md", "DEPLOYMENT_RULES.md"],
       "skills": ["skills/firebase/SKILL.md", "skills/deployment/SKILL.md"],
       "checks": ["project target", "rules", "indexes", "emulator", "deployment"]
     },
     "ai": {
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "AI_SECURITY_RULES.md", "COST_AND_QUOTA_RULES.md"],
+      "read": ["AI_SECURITY_RULES.md", "COST_AND_QUOTA_RULES.md"],
       "skills": ["skills/google-ai-studio/SKILL.md", "skills/security/SKILL.md"],
       "checks": ["input validation", "output validation", "authorization", "quota", "fallback"]
     },
     "public-seo": {
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "SEO_RULES.md", "PERFORMANCE_RULES.md"],
+      "read": ["SEO_RULES.md", "PERFORMANCE_RULES.md"],
       "skills": ["skills/seo/SKILL.md", "skills/performance/SKILL.md", "skills/content/SKILL.md"],
       "checks": ["metadata", "canonical", "indexing", "structured data", "mobile performance"]
     },
     "deployment": {
-      "read": ["AGENTS.md", "PROJECT_SPEC.md", "DEPLOYMENT_RULES.md", "OBSERVABILITY_RULES.md"],
+      "read": ["DEPLOYMENT_RULES.md", "OBSERVABILITY_RULES.md"],
       "skills": ["skills/deployment/SKILL.md", "skills/observability/SKILL.md"],
       "checks": ["build", "secrets", "environment", "health", "smoke test", "rollback"]
     },
     "product-discovery": {
-      "read": ["AGENTS.md", "PROJECT_SPEC.template.md", "ROADMAP.md", "UX_RULES.md"],
+      "read": ["PROJECT_SPEC.template.md", "ROADMAP.md", "UX_RULES.md"],
       "skills": ["skills/product-discovery/SKILL.md"],
       "checks": ["users", "journeys", "MVP scope", "acceptance criteria", "open decisions"]
     }
