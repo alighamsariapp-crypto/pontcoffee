@@ -115,7 +115,7 @@ def check_duplicates(errors: list[str]) -> None:
     hashes: dict[str, Path] = {}
     import hashlib
     for file in ROOT.rglob("*.md"):
-        if ".git" in file.parts:
+        if ".git" in file.parts or ".webtow" in file.parts:
             continue
         digest = hashlib.sha256(file.read_bytes()).hexdigest()
         if digest in hashes:
@@ -137,16 +137,33 @@ def check_secrets(errors: list[str]) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate AI Web Framework conventions")
-    parser.add_argument("--project", action="store_true", help="require a completed PROJECT_SPEC.md")
+    parser.add_argument("--root", type=Path, help="project root when running project mode")
+    parser.add_argument("--project", action="store_true", help="run project state-machine enforcement")
+    target = parser.add_mutually_exclusive_group()
+    target.add_argument("--phase", choices=["00", "01", "02", "03", "04", "05", "06", "07"])
+    target.add_argument("--feature", help="feature ID, for example F-003")
     args = parser.parse_args()
+    global ROOT
+    if args.root:
+        ROOT = args.root.resolve()
     errors: list[str] = []
     check_required(errors)
     check_references(errors)
     check_route_map(errors)
     check_duplicates(errors)
     check_secrets(errors)
-    if args.project and not (ROOT / "PROJECT_SPEC.md").is_file():
-        fail(errors, "project mode requires PROJECT_SPEC.md")
+    if args.project:
+        if not (ROOT / "PROJECT_SPEC.md").is_file():
+            fail(errors, "project mode requires PROJECT_SPEC.md")
+        if not args.phase and not args.feature:
+            fail(errors, "project mode requires --phase or --feature")
+        if args.phase or args.feature:
+            try:
+                from project_gate import check_phase, check_feature
+                gate_errors = check_phase(ROOT, args.phase) if args.phase else check_feature(ROOT, args.feature)
+                errors.extend(f"project gate: {item}" for item in gate_errors)
+            except ValueError as exc:
+                errors.append(f"project gate: {exc}")
     if errors:
         print("FRAMEWORK CHECK: FAIL")
         for error in errors:

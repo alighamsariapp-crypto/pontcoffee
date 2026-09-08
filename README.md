@@ -60,10 +60,11 @@ The framework cannot prove that an external AI agent followed prose instructions
 
 ```bash
 python3 scripts/framework_check.py
-python3 scripts/framework_check.py --project
+python3 scripts/framework_check.py --project --phase 03
+python3 scripts/framework_check.py --project --feature F-003
 ```
 
-The first command validates the framework repository. The project mode additionally requires a completed `PROJECT_SPEC.md`. The GitHub workflow runs the same structural checks, and `scripts/install-hooks.sh` installs the same check as a local pre-commit hook.
+The first command validates the framework repository. Project mode additionally requires a completed `PROJECT_SPEC.md` and invokes the state machine: previous Phases must be `PASS`, the target Phase or Feature must be `PASS`, artifacts must exist, and blockers must be empty. The GitHub workflow runs the framework checks, while a generated project CI must run the project-mode command for its active target. `scripts/install-hooks.sh` installs the structural check as a local pre-commit hook.
 
 ## Project quality gate
 
