@@ -1,106 +1,452 @@
-# UX RULES
 
-## 1. PURPOSE
+# UX RULES — PONT CAFE
 
-This document defines the mandatory UX and responsive UI rules for the entire application.
+Version: 1.0
+Status: Active
+Project: PONT CAFE Digital Menu
 
-It covers:
+---
 
-* UX architecture
-* Mobile-first design
-* Responsive behavior
-* Desktop/mobile separation
-* RTL
+## 1. Purpose
+
+This document defines the user experience rules for PONT CAFE.
+
+The goal is to provide a menu experience that is:
+
+- Simple
+- Fast
+- Elegant
+- Clear
+- Mobile-first
+- Accessible
+- Consistent
+- Easy to understand without instruction
+
+PONT CAFE is a QR-based digital menu.
+
+It is not an online ordering application.
+
+---
+
+## 2. Source of Truth
+
+`PROJECT_SPEC.md` is the primary project-specific source of truth.
+
+The UX implementation must also follow:
+
+- `DESIGN_SYSTEM.md`
+- `CODING_RULES.md`
+- `PERFORMANCE_RULES.md`
+
+If a conflict exists, `PROJECT_SPEC.md` takes priority.
+
+---
+
+## 3. Core UX Principle
+
+The main principle is:
+
+> Show the user what they need, and nothing they do not need.
+
+The interface must avoid:
+
+- Visual clutter
+- Unnecessary information
+- Excessive controls
+- Oversized components
+- Decorative elements without purpose
+- Unnecessary animations
+- Unnecessary popups
+- Unnecessary steps
+
+---
+
+## 4. QR Menu First
+
+The customer usually reaches the menu by scanning a QR code.
+
+The user should understand the interface immediately without onboarding.
+
+Do not require:
+
+- Registration
+- Login
+- Tutorial
+- Account creation
+- App installation
+- Extra confirmation screens
+
+---
+
+## 5. Customer Journey
+
+The primary information architecture is:
+
+```text
+Entry
+  ↓
+Cafe OR Restaurant
+  ↓
+Category
+  ↓
+Product List
+  ↓
+Product Detail
+````
+
+Do not mix Cafe and Restaurant content.
+
+---
+
+## 6. Main Entry Screen
+
+The first screen should provide:
+
+* PONT CAFE branding
+* Language switcher
+* Cafe entry
+* Restaurant entry
+
+The screen must remain simple.
+
+Do not add:
+
+* Product lists
+* Promotional banners
+* Ordering controls
+* Cart
+* Search
+* Ratings
+* Favorites
+* Unnecessary marketing sections
+
+---
+
+## 7. Cafe Structure
+
+Cafe categories are:
+
+```text
+Cafe
+├── Hot Bar
+├── Cold Bar
+└── Dessert
+```
+
+Do not add additional Cafe categories unless the project specification changes.
+
+---
+
+## 8. Restaurant Structure
+
+Restaurant categories are:
+
+```text
+Restaurant
+├── Breakfast
+├── Lunch
+└── Dinner
+```
+
+Do not mix Cafe categories into Restaurant navigation.
+
+---
+
+## 9. Category Navigation
+
+Category navigation must be predictable.
+
+Users should always understand:
+
+* Where they are
+* What category they are viewing
+* How to go back
+
+Do not create deep or unnecessary navigation levels.
+
+---
+
+## 10. Back Navigation
+
+Back navigation must preserve the information hierarchy.
+
+Example:
+
+```text
+Product
+  ↓ Back
+Product List
+  ↓ Back
+Category
+  ↓ Back
+Cafe / Restaurant
+  ↓ Back
+Entry
+```
+
+Do not unexpectedly send users to the homepage when a normal back action should return them to the previous logical level.
+
+---
+
+## 11. Product List
+
+The product card should contain only the required information.
+
+Primary content:
+
+* One product image
+* Product name
+* Price
+
+Availability may also be shown when relevant.
+
+Do not add:
+
+* Long descriptions
+* Ingredients
+* Ratings
+* Favorites
+* Quantity controls
+* Add-to-cart buttons
+* Order buttons
+* Review counts
+* Unnecessary badges
+
+---
+
+## 12. Product Image
+
+Each product card should use one primary image.
+
+Images should be:
+
+* Clear
+* Consistent
+* Appropriately cropped
+* Visually aligned
+
+Do not use multiple images on the product card.
+
+---
+
+## 13. Product Detail
+
+The product detail page may contain:
+
+* Back navigation
+* Large product image
+* Product name
+* Full description
+* Ingredients when available
+* Allergens when available
+* Price
+* Availability state
+
+Do not add ordering functionality.
+
+---
+
+## 14. No Ordering UX
+
+PONT CAFE V1 does not support online ordering.
+
+Do not implement:
+
+* Add to cart
+* Cart
+* Checkout
+* Quantity selector
+* Order submission
+* Delivery
+* Online payment
+* Table selection
+* Customer account
+
+The menu is informational.
+
+---
+
+## 15. No Customer Account
+
+Customers must not be required to:
+
+* Sign up
+* Log in
+* Provide an email
+* Provide a phone number
+* Create a profile
+
+The menu should be immediately accessible after scanning the QR code.
+
+---
+
+## 16. Language Selection
+
+Supported languages:
+
+```text
+FA
+العربية
+EN
+```
+
+Language selection must be easy to find.
+
+Do not hide language selection inside unnecessary menus.
+
+---
+
+## 17. RTL / LTR
+
+Persian:
+
+```text
+RTL
+```
+
+Arabic:
+
+```text
+RTL
+```
+
+English:
+
+```text
+LTR
+```
+
+The layout must adapt properly rather than simply changing text alignment.
+
+---
+
+## 18. RTL Mirroring
+
+RTL layouts should correctly mirror directional UI where appropriate.
+
+Examples:
+
+* Navigation direction
+* Back controls
+* Arrows
+* Spacing
+* Alignment
+* Navigation flow
+
+Do not manually duplicate the entire interface for RTL.
+
+Use reusable direction-aware components.
+
+---
+
+## 19. Typography
+
+Typography must remain moderate and readable.
+
+Use:
+
+```text
+IranYekan
+```
+
+for Persian and Arabic.
+
+English should use the approved Latin companion font defined by the design system.
+
+Avoid:
+
+* Extremely large headings
+* Tiny text
+* Excessive font weights
+* Too many typography styles
+
+---
+
+## 20. Visual Hierarchy
+
+The interface must have a clear hierarchy.
+
+Users should immediately recognize:
+
+1. Current section
+2. Category
+3. Product name
+4. Price
+5. Optional supporting information
+
+Do not make secondary information visually stronger than primary content.
+
+---
+
+## 21. Brand Usage
+
+Primary brand color:
+
+```text
+#23336E
+```
+
+Brand color should be used intentionally.
+
+Do not fill the entire interface with the brand color.
+
+Avoid excessive visual decoration.
+
+---
+
+## 22. Whitespace
+
+Whitespace is an important part of the PONT CAFE visual identity.
+
+Use consistent spacing.
+
+Do not overcrowd:
+
+* Product cards
 * Navigation
-* Forms
-* Tables
-* Admin Panel
-* Modals
-* Drawers
-* Page-first workflows
-* Touch interaction
-* Accessibility
-* Loading states
-* Empty states
-* Error states
-* Responsive quality gates
+* Headers
+* Buttons
+* Text blocks
 
-These rules are mandatory.
+Do not create excessive empty areas that make the interface feel unfinished.
 
 ---
 
-# 2. CORE UX PRINCIPLE
+## 23. Component Size
 
-The application MUST be designed around real user workflows.
+UI elements should use comfortable but restrained dimensions.
 
-The goal is NOT:
+Avoid:
 
-```text
-Desktop UI
-↓
-Shrink
-↓
-Mobile
-```
+* Oversized buttons
+* Oversized cards
+* Oversized headers
+* Excessively large icons
+* Excessively large typography
 
-The goal is:
-
-```text
-Desktop Experience
-        +
-Mobile Experience
-        +
-Tablet Experience
-        ↓
-One coherent product
-```
-
-Mobile MUST NOT be treated as a smaller desktop.
+The interface should feel premium through balance and spacing, not size.
 
 ---
 
-# 3. MOBILE IS A FIRST-CLASS EXPERIENCE
+## 24. Touch Targets
 
-Mobile layouts MUST be intentionally designed and implemented.
+Interactive elements must be comfortable to use on mobile.
 
-AI MUST NOT simply:
+Target minimum touch area:
 
 ```text
-reduce width
-reduce font size
-stack everything
-hide overflow
+48 × 48 px
 ```
 
-and consider the mobile version complete.
-
-Mobile may require different:
-
-* layouts
-* navigation
-* information hierarchy
-* controls
-* actions
-* component variants
-* interaction patterns
-* content density
-* table presentation
-* filtering patterns
-* checkout flow
+Do not place tiny clickable controls close together.
 
 ---
 
-# 4. MOBILE-FIRST IMPLEMENTATION
+## 25. Mobile-First
 
-Responsive implementation SHOULD begin from the smallest practical viewport and progressively enhance for larger screens.
+Mobile is the primary UX environment.
 
-Minimum supported viewport:
-
-```text
-320px
-```
-
-The interface MUST remain usable at:
+Design and implement for:
 
 ```text
 320px
@@ -110,1158 +456,607 @@ The interface MUST remain usable at:
 414px
 ```
 
-unless the project explicitly defines another supported range.
+before optimizing larger layouts.
+
+Mobile must not be treated as a compressed desktop layout.
 
 ---
 
-# 5. NO GLOBAL HORIZONTAL SCROLL
+## 26. Desktop
 
-The application MUST NOT create unintended horizontal page scrolling.
+Desktop layouts should preserve the same visual language as mobile.
 
-This is a HARD RULE.
+Desktop may use:
 
-The following is considered a UX failure:
+* More horizontal space
+* Larger content areas
+* Multi-column layouts when appropriate
 
-```text
-Mobile
-↓
-Page extends beyond viewport
-↓
-User can horizontally scroll the entire website
-```
-
-If a component is wider than the viewport, that component MUST be redesigned or isolated.
+Do not redesign the application into a completely different visual system on desktop.
 
 ---
 
-# 6. DO NOT HIDE OVERFLOW TO MASK BUGS
+## 27. No Horizontal Scrolling
 
-The following is NOT an acceptable fix for responsive problems:
+The customer interface must not create unintended horizontal scrolling.
 
-```css
-overflow-x: hidden;
-```
+Check:
 
-when it merely hides content that does not fit.
+* Images
+* Cards
+* Navigation
+* Text
+* Buttons
+* Containers
+* Tables if any
 
-Also prohibited as a fake fix:
-
-```text
-❌ body overflow hiding
-❌ clipping buttons
-❌ clipping table columns
-❌ hiding content outside viewport
-❌ negative positioning to force-fit content
-```
-
-The underlying layout problem MUST be fixed.
+at small mobile widths.
 
 ---
 
-# 7. RESPONSIVE ARCHITECTURE
+## 28. Navigation
 
-Responsive behavior MUST be intentional.
+Navigation must remain simple.
 
-Every major component should define:
+Users should not need to understand complex menus.
 
-```text
-Desktop behavior
-Tablet behavior
-Mobile behavior
-```
+Avoid unnecessary:
 
-Example:
-
-```text
-Navigation
-Desktop → Sidebar/Header
-Tablet  → Compact navigation
-Mobile  → Dedicated mobile navigation
-```
-
-Do not assume one layout works equally well everywhere.
+* Mega menus
+* Nested dropdowns
+* Hamburger menus for simple category structures
+* Floating controls
+* Persistent UI that blocks content
 
 ---
 
-# 8. COMPONENT RESPONSIVE VARIANTS
+## 29. Mobile Navigation
 
-Reusable components MAY have responsive variants.
+Mobile navigation must be fully usable.
 
-Example:
+If a drawer is used:
 
-```text
-ProductGrid
-Desktop → multi-column
-Tablet  → reduced columns
-Mobile  → optimized single/two-column layout
-```
-
-Example:
-
-```text
-AdminActions
-Desktop → inline actions
-Mobile  → action menu
-```
-
-Responsive variants MUST preserve the same design language.
+* It must open completely.
+* It must not be partially visible.
+* It must have clear close behavior.
+* It must respect safe areas.
+* It must not create horizontal scrolling.
 
 ---
 
-# 9. MOBILE NAVIGATION
+## 30. Modals
 
-Mobile navigation MUST be designed specifically for mobile.
+Do not use small centered modals for major workflows.
 
-It should consider:
+Major content should use a dedicated page.
 
-* thumb reach
-* touch targets
-* hierarchy
-* safe area
-* scrolling
-* closing behavior
-* keyboard interaction
-* focus management
+Examples:
 
-Do not simply shrink desktop navigation.
+* Product detail
+* Major menu navigation
+* Admin product creation/editing
+
+A modal may be used only for genuinely small contextual interactions.
 
 ---
 
-# 10. MOBILE HEADER
+## 31. Product Detail on Mobile
 
-Mobile headers MUST have a dedicated layout.
+Product detail should be a proper mobile page.
 
-Avoid:
+It must not be implemented as a tiny desktop-style popup.
 
-```text
-Desktop header
-+
-smaller font
-=
-mobile header
-```
-
-The mobile header should explicitly define:
-
-```text
-logo
-menu/navigation
-search
-cart
-account
-actions
-```
-
-according to the project requirements.
+The content should fit the viewport naturally.
 
 ---
 
-# 11. TOUCH TARGETS
+## 32. Search
 
-Interactive elements MUST be comfortably touchable.
+Search is not required for V1 unless explicitly included in the approved specification.
 
-Recommended practical target:
+Do not add search merely because other menu applications use it.
 
-```text
-44–48px
-```
-
-Do not create tiny controls simply to fit more content.
-
-This applies especially to:
-
-```text
-buttons
-icons
-checkboxes
-radio controls
-quantity controls
-tabs
-navigation
-table actions
-close buttons
-```
+If search is introduced later, it must have a clear UX purpose.
 
 ---
 
-# 12. MOBILE FORMS
+## 33. Filters
 
-Forms MUST be optimized for touch.
+Complex filtering is not required for the customer menu V1.
 
-Rules:
-
-* fields should have adequate height
-* labels must remain clear
-* errors must be visible
-* keyboard behavior must be considered
-* important actions must remain reachable
-* fields must not cause horizontal overflow
+Do not add filter drawers or advanced filter interfaces unless explicitly required.
 
 ---
 
-# 13. MOBILE TYPOGRAPHY
+## 34. Loading States
 
-Mobile typography MUST remain readable.
+Loading states must be subtle.
 
-Do NOT solve layout problems by making text extremely small.
+The PONT CAFE loading animation should:
 
-Default body text SHOULD remain around:
+* Use the PONT CAFE logo
+* Be centered
+* Be brief
+* Use brand styling
+* Avoid a generic spinner
 
-```text
-16px
-```
-
-unless the design system defines otherwise.
-
----
-
-# 14. MOBILE SPACING
-
-Mobile spacing may be reduced compared with desktop, but must remain intentional.
-
-Do not compress the entire interface until:
-
-```text
-text touches controls
-buttons become cramped
-cards become unreadable
-sections lose hierarchy
-```
+Do not show loading UI when there is no actual loading operation.
 
 ---
 
-# 15. MOBILE CARDS
+## 35. Empty States
 
-Cards MUST adapt to mobile.
-
-Do not allow:
-
-```text
-fixed-width desktop cards
-```
-
-to overflow the viewport.
-
-Cards should use:
-
-```text
-width: 100%
-max-width
-responsive grid
-content wrapping
-```
-
-as appropriate.
-
----
-
-# 16. MOBILE TABLES
-
-Tables require special treatment.
-
-A complex desktop table MUST NOT simply be placed inside a mobile page and considered responsive.
-
-Preferred mobile patterns:
-
-```text
-Table
-↓
-Mobile Card List
-```
-
-or:
-
-```text
-Table Row
-↓
-Compact Row
-↓
-Expandable Details
-```
-
-or:
-
-```text
-Essential Columns
-+
-Details View
-```
-
----
-
-# 17. TABLE RESPONSIVE STRATEGY
-
-For every table, explicitly decide:
-
-```text
-What information is essential?
-What information is secondary?
-What actions are essential?
-What can move into details?
-What can become an action menu?
-```
-
-This decision MUST happen before implementation.
-
----
-
-# 18. ADMIN PANEL MOBILE
-
-The Admin Panel MUST have a dedicated mobile UX strategy.
-
-Admin desktop layouts MUST NOT simply be compressed.
-
-This applies to:
-
-```text
-Sidebar
-Header
-Breadcrumbs
-Page header
-Toolbars
-Filters
-Tables
-Forms
-Actions
-Charts
-Dashboards
-```
-
----
-
-# 19. ADMIN TABLE HARD RULE
-
-A desktop Admin Table MUST NEVER cause the entire mobile website to horizontally scroll.
-
-Invalid:
-
-```text
-┌──────────────────────────────────────────────┐
-│ Mobile viewport                              │
-│                                              │
-│   <-------- huge table -------->             │
-│                                              │
-└──────────────────────────────────────────────┘
-```
-
-where the entire page moves horizontally.
-
----
-
-# 20. ADMIN TABLE ALLOWED PATTERNS
-
-When a table cannot reasonably fit on mobile, use one of:
-
-### Pattern A — Mobile Cards
-
-```text
-Desktop:
-Table
-
-Mobile:
-┌──────────────────────┐
-│ Product              │
-│ SKU                   │
-│ Price                 │
-│ Stock                 │
-│ Status                │
-│ ⋮ Actions             │
-└──────────────────────┘
-```
-
-### Pattern B — Expandable Row
-
-```text
-Primary information
-        ↓
-More details
-        ↓
-Actions
-```
-
-### Pattern C — Essential Columns
-
-Only the most important columns remain visible.
-
-Secondary information moves into:
-
-```text
-Details
-Drawer
-Expandable section
-Dedicated page
-```
-
-### Pattern D — Isolated Table Scroll
-
-If horizontal scrolling is genuinely necessary:
-
-```text
-Page
- └── Table Container
-       └── horizontal scroll
-```
-
-NOT:
-
-```text
-Page
- └── horizontal scroll
-```
-
-The horizontal scroll MUST be limited to the table container.
-
----
-
-# 21. ADMIN TABLE PROHIBITIONS
-
-The following are prohibited:
-
-```text
-❌ Fixed desktop table width on mobile
-❌ min-width on the entire page
-❌ Giant column compression
-❌ Tiny unreadable text
-❌ Buttons overflowing rows
-❌ Hidden content that becomes inaccessible
-❌ Global horizontal page scroll
-❌ overflow-x:hidden as a fake fix
-```
-
----
-
-# 22. ADMIN ACTIONS ON MOBILE
-
-Desktop:
-
-```text
-Edit | View | Delete
-```
-
-may become mobile:
-
-```text
-⋮
-```
-
-with:
-
-```text
-View
-Edit
-Delete
-```
-
-inside a suitable action menu.
-
-Actions MUST remain accessible.
-
----
-
-# 23. ADMIN TOOLBAR
-
-Desktop admin toolbar may contain:
-
-```text
-Search
-Filter
-Sort
-Export
-Create
-Bulk Actions
-```
-
-Mobile SHOULD reorganize these controls.
-
-Example:
-
-```text
-Search
-Filter
-More
-```
-
-instead of forcing all controls into one horizontal row.
-
----
-
-# 24. ADMIN FILTERS
-
-Complex filters MUST NOT create an oversized desktop sidebar on mobile.
-
-Mobile filters SHOULD use:
-
-```text
-Full-screen filter page
-```
-
-or:
-
-```text
-Near-full-screen bottom sheet/drawer
-```
-
-with:
-
-```text
-Fixed header
-Scrollable content
-Sticky footer
-Primary CTA
-```
-
----
-
-# 25. MOBILE FILTER CTA
-
-For result-based filtering, the mobile filter experience SHOULD provide a clear action such as:
-
-```text
-Show 24 results
-```
-
-The CTA should remain accessible without requiring the user to scroll to the bottom.
-
----
-
-# 26. SAFE AREA
-
-Mobile interfaces MUST account for device safe areas where relevant.
-
-Especially:
-
-```text
-bottom navigation
-sticky actions
-full-screen drawers
-bottom sheets
-checkout actions
-```
-
----
-
-# 27. MOBILE DRAWERS
-
-Important mobile drawers SHOULD use nearly the full available viewport.
-
-For full-height interactions:
-
-```text
-100dvh
-```
-
-SHOULD be preferred over assumptions based only on `100vh`.
-
----
-
-# 28. MODAL RULE
-
-Use a modal only for short, focused interactions.
-
-Good examples:
-
-```text
-confirmation
-short form
-quick information
-small decision
-```
-
-Bad examples:
-
-```text
-entire checkout
-large admin workflow
-large table
-complex multi-step form
-full application page
-```
-
----
-
-# 29. PAGE-FIRST PRINCIPLE
-
-When a workflow becomes complex, move it to a page.
-
-Decision rule:
-
-```text
-Simple
-→ Modal
-
-Medium
-→ Drawer / Side Panel
-
-Complex
-→ Dedicated Page
-
-Multi-step / Critical
-→ Full Page / Dedicated Flow
-```
-
----
-
-# 30. NO NESTED MODALS
-
-Avoid:
-
-```text
-Modal
-↓
-Modal
-↓
-Modal
-```
-
-If a workflow requires nested dialogs, reconsider the UX architecture.
-
----
-
-# 31. CHECKOUT MOBILE
-
-Checkout MUST be treated as a dedicated mobile workflow.
-
-It MUST NOT depend on a small centered modal.
-
-Mobile checkout should provide:
-
-```text
-clear steps
-readable forms
-sticky primary action where appropriate
-visible totals
-easy navigation
-error recovery
-```
-
----
-
-# 32. MOBILE CART
-
-Cart interactions MUST be designed specifically for mobile.
-
-Consider:
-
-```text
-quantity controls
-product information
-remove action
-subtotal
-shipping
-discount
-checkout CTA
-```
-
-Do not allow cart rows to become wider than the viewport.
-
----
-
-# 33. RESPONSIVE IMAGES
-
-Images MUST remain within their containers.
-
-Avoid fixed dimensions that cause overflow.
-
-Product images SHOULD preserve their intended aspect ratio.
-
----
-
-# 34. RESPONSIVE CONTENT
-
-Long content MUST wrap safely.
-
-Test:
-
-```text
-long product names
-long usernames
-long email addresses
-large numbers
-long translations
-large prices
-```
-
-No important content should become inaccessible because of text length.
-
----
-
-# 35. RTL
-
-For RTL applications:
-
-```text
-dir="rtl"
-```
-
-must be defined intentionally.
-
-Use CSS logical properties where possible:
-
-```text
-margin-inline
-padding-inline
-inset-inline
-border-inline
-text-align: start
-```
-
-Avoid unnecessary physical-direction rules:
-
-```text
-margin-left
-margin-right
-left
-right
-```
-
----
-
-# 36. RTL COMPONENT TESTING
-
-RTL MUST be verified for:
-
-```text
-navigation
-tables
-forms
-dropdowns
-drawers
-modals
-pagination
-icons
-breadcrumbs
-admin layouts
-```
-
-Icons that communicate direction MUST also be reviewed.
-
----
-
-# 37. ACCESSIBILITY
-
-The UX baseline is:
-
-```text
-WCAG 2.2 AA
-```
-
-Important requirements include:
-
-```text
-keyboard navigation
-visible focus
-labels
-semantic structure
-contrast
-reflow
-zoom
-screen-reader compatibility
-reduced motion
-```
-
----
-
-# 38. KEYBOARD ACCESS
-
-All important interactions MUST be keyboard accessible.
-
-Especially:
-
-```text
-menus
-dialogs
-drawers
-tabs
-forms
-tables
-dropdowns
-filters
-admin actions
-```
-
----
-
-# 39. FOCUS MANAGEMENT
-
-Dialogs and drawers MUST manage focus correctly.
-
-When opened:
-
-```text
-Focus
-↓
-Relevant interactive content
-```
-
-When closed:
-
-```text
-Focus
-↓
-Trigger
-```
-
-where appropriate.
-
----
-
-# 40. LOADING STATES
-
-Every async interface MUST define a loading state where appropriate.
-
-Avoid:
-
-```text
-blank screen
-frozen button
-unclear waiting
-```
-
----
-
-# 41. ERROR STATES
-
-Errors MUST be understandable.
-
-Provide:
-
-```text
-what happened
-what failed
-what the user can do
-```
-
-Do not expose technical implementation details.
-
----
-
-# 42. EMPTY STATES
-
-Empty data is not automatically an error.
+Empty states must explain what happened.
 
 Examples:
 
 ```text
-No products
-No orders
-No search results
-Empty cart
-No notifications
+This category currently has no products.
 ```
 
-Each important empty state SHOULD provide useful context or next action.
+Do not show a completely blank page.
+
+Do not use oversized warning boxes.
 
 ---
 
-# 43. SKELETONS
+## 36. Error States
 
-Skeleton loading states SHOULD represent the actual content structure.
+Error messages should be:
 
-Do not create decorative skeletons that cause layout shifts when real content appears.
+* Clear
+* Short
+* Human-readable
+* Actionable when possible
+
+Avoid technical messages such as:
+
+```text
+SQLSTATE[HY000]
+500 Internal Server Error
+Undefined variable
+```
+
+for normal customers.
 
 ---
 
-# 44. LAYOUT STABILITY
+## 37. Service Availability
 
-Avoid unnecessary layout shifts.
+The menu may be unavailable outside defined service hours.
 
-Reserve space for:
+This state should be clearly different from a sold-out product.
+
+Example:
 
 ```text
-images
-async content
-alerts
-validation messages
-dynamic controls
+Currently unavailable
+```
+
+or the approved localized equivalent.
+
+Do not use aggressive warning styling.
+
+---
+
+## 38. Sold-Out Products
+
+Sold-out products should remain visible when appropriate.
+
+The product may show:
+
+```text
+Sold Out
+```
+
+using a subtle visual treatment.
+
+Avoid bright red warning styles.
+
+Do not make sold-out products look like application errors.
+
+---
+
+## 39. Availability Distinction
+
+These states must remain visually and logically distinct:
+
+```text
+Available
+Sold Out
+Outside Service Hours
+```
+
+Do not use the same message or visual treatment for all three.
+
+---
+
+## 40. Animation
+
+Animations must be:
+
+* Subtle
+* Short
+* Purposeful
+* Consistent
+
+Avoid:
+
+* Excessive transitions
+* Large movement
+* Decorative animations
+* Continuous animations
+* Distracting effects
+
+---
+
+## 41. Accessibility
+
+The interface must support accessible use.
+
+Requirements include:
+
+* Semantic HTML
+* Keyboard navigation
+* Visible focus states
+* Accessible labels
+* Adequate contrast
+* Meaningful alt text
+* Appropriate heading hierarchy
+
+---
+
+## 42. Color Accessibility
+
+Do not communicate important information through color alone.
+
+For example, sold-out state should not depend only on gray color.
+
+Use:
+
+* Text
+* Visual state
+* Structure
+* Appropriate labels
+
+in combination.
+
+---
+
+## 43. Content Density
+
+The menu should remain visually calm.
+
+Do not put too much information into a single card.
+
+Product cards should prioritize:
+
+```text
+Image
+Name
+Price
+Availability when required
+```
+
+Additional information belongs on the product detail page.
+
+---
+
+## 44. No Decorative Clutter
+
+Avoid unnecessary:
+
+* Badges
+* Icons
+* Dividers
+* Shadows
+* Gradients
+* Patterns
+* Decorative illustrations
+
+Every visual element should have a clear purpose.
+
+---
+
+## 45. Icons
+
+Use a consistent icon system when icons are required.
+
+Do not mix multiple unrelated icon styles.
+
+Do not use emoji as primary interface icons.
+
+Icons should support meaning rather than decorate every element.
+
+---
+
+## 46. Images and UX
+
+Food photography should support the menu experience.
+
+Images should be:
+
+* High quality
+* Consistent
+* Relevant
+* Properly cropped
+
+Do not use random stock images that do not represent the actual product.
+
+---
+
+## 47. Content Accuracy
+
+The UI must display real product information.
+
+Do not use:
+
+* Fake names
+* Fake prices
+* Placeholder products
+* Random descriptions
+* Fake availability
+
+in production.
+
+---
+
+## 48. Admin UX
+
+The Admin interface should use the same overall PONT CAFE design language.
+
+Do not create a separate visual language for Admin.
+
+Admin should remain:
+
+* Compact
+* Practical
+* Consistent
+* Easy to scan
+
+---
+
+## 49. Admin Forms
+
+Admin forms should be organized into logical sections.
+
+Do not create extremely long unstructured forms.
+
+Use:
+
+* Clear labels
+* Appropriate grouping
+* Validation messages
+* Helpful defaults
+* Clear save/cancel actions
+
+---
+
+## 50. Admin Product Editor
+
+The product editor should provide clear sections for:
+
+* Basic information
+* Translations
+* Price
+* Ingredients
+* Allergens
+* Image
+* Availability
+* Status
+
+Do not force all information into one visually overwhelming block.
+
+---
+
+## 51. Admin Mobile
+
+Admin must remain usable on mobile.
+
+Do not simply shrink desktop tables.
+
+For complex data:
+
+* Use responsive cards
+* Stack information appropriately
+* Provide accessible actions
+* Avoid horizontal page scrolling
+
+---
+
+## 52. Sticky Actions
+
+For long mobile Admin forms, important actions may use a sticky action area.
+
+The sticky area must:
+
+* Remain accessible
+* Respect safe-area insets
+* Not cover form content
+* Contain clear primary actions
+
+---
+
+## 53. Feedback
+
+After an Admin action, provide clear feedback.
+
+Examples:
+
+* Product saved
+* Product updated
+* Product deleted
+* Image uploaded
+* Settings updated
+
+Feedback should be visible without being intrusive.
+
+---
+
+## 54. Destructive Actions
+
+Destructive actions such as deletion require clear confirmation when accidental activation could cause meaningful data loss.
+
+The confirmation should clearly identify what will be affected.
+
+Do not use vague messages such as:
+
+```text
+Are you sure?
+```
+
+when more context is appropriate.
+
+---
+
+## 55. No Small Modals for Major Admin Workflows
+
+Major Admin workflows should use dedicated pages/workspaces.
+
+Do not place important product creation or editing inside a narrow centered modal.
+
+---
+
+## 56. Consistency
+
+The same interaction must behave the same way across the application.
+
+Examples:
+
+* Back navigation
+* Buttons
+* Form validation
+* Language switching
+* Availability states
+* Product cards
+* Admin actions
+
+Do not create different interaction patterns for similar components.
+
+---
+
+## 57. State Completeness
+
+Every important interactive or data-driven component should consider:
+
+```text
+Default
+Loading
+Empty
+Error
+Success
+Disabled
+Unavailable
+```
+
+Only states relevant to the specific component need to be implemented.
+
+---
+
+## 58. Performance UX
+
+UX decisions must support performance.
+
+Prefer:
+
+* Server-rendered content
+* Optimized images
+* Minimal JavaScript
+* Small assets
+* Simple navigation
+
+Do not introduce heavy client-side systems only for visual effects.
+
+---
+
+## 59. Offline / Network Failure
+
+The application does not need a full offline-first architecture for V1.
+
+However, network failures should not result in confusing blank screens.
+
+Where appropriate, provide a clear retry or error state.
+
+Do not fake offline data unless an offline feature is explicitly implemented.
+
+---
+
+## 60. Third-Party Dependence
+
+Core customer UX must not depend on external services.
+
+The menu should remain functional without:
+
+* Firebase
+* External database
+* External image storage
+* External analytics
+* External UI services
+
+Optional third-party services must never block the core menu.
+
+---
+
+## 61. No Feature Creep
+
+Do not add UX features simply because they are common in other restaurant apps.
+
+Do not add:
+
+* Favorites
+* Reviews
+* Ratings
+* Ordering
+* Cart
+* Checkout
+* Customer accounts
+* Loyalty
+* Reservations
+* Delivery tracking
+* AI assistant
+
+unless the project specification changes.
+
+---
+
+## 62. UX Review
+
+Before completing a feature, verify:
+
+```text
+[ ] User understands where they are
+[ ] Navigation is clear
+[ ] Back navigation works
+[ ] Mobile layout works
+[ ] RTL works
+[ ] LTR works
+[ ] Touch targets are usable
+[ ] Typography is readable
+[ ] No horizontal scrolling
+[ ] Loading state is appropriate
+[ ] Empty state is appropriate
+[ ] Error state is appropriate
+[ ] Availability states are distinct
+[ ] No unnecessary modal
+[ ] No unnecessary feature
+[ ] Accessibility considered
+[ ] Visual style matches PONT CAFE
 ```
 
 ---
 
-# 45. RESPONSIVE BREAKPOINTS
+## 63. Final UX Rule
 
-Breakpoints MUST be based on layout needs, not device-name assumptions.
+The PONT CAFE UX principle is:
 
-Do not create unnecessary breakpoints such as:
+> Simple, elegant, fast, clear, and focused on viewing the menu.
 
-```text
-iPhone
-iPad
-Samsung
-Laptop
+The interface should feel like a carefully designed digital menu, not a complex e-commerce application.
+
+Every component, interaction, animation, and piece of information must justify its existence.
+
 ```
 
-unless a real design requirement exists.
 
----
-
-# 46. NO ARBITRARY RESPONSIVE FIXES
-
-Do not accumulate:
-
-```text
-@media
-@media
-@media
-@media
+بعدش می‌ریم سراغ آخرین فایل اصلی یعنی **`DESIGN_SYSTEM.md`**.
 ```
-
-to patch an incorrectly designed component.
-
-If responsive CSS becomes excessively complex:
-
-```text
-STOP
-↓
-Review component structure
-↓
-Review layout strategy
-↓
-Refactor
-```
-
----
-
-# 47. DESKTOP-MOBILE DESIGN PARITY
-
-Desktop and mobile do NOT need identical layouts.
-
-They MUST have consistent:
-
-```text
-brand
-visual language
-information hierarchy
-terminology
-business behavior
-```
-
-but may have different interaction patterns.
-
----
-
-# 48. RESPONSIVE TESTING
-
-Every major page MUST be tested at minimum:
-
-```text
-320px
-360px
-375px
-390px
-414px
-768px
-1024px
-1280px+
-```
-
-Testing should verify:
-
-```text
-layout
-overflow
-navigation
-forms
-tables
-actions
-images
-typography
-spacing
-```
-
----
-
-# 49. HORIZONTAL OVERFLOW TEST
-
-Every page MUST be checked for unintended horizontal overflow.
-
-Conceptually:
-
-```text
-document width
-≤
-viewport width
-```
-
-except for intentionally isolated components such as a table container.
-
----
-
-# 50. ADMIN RESPONSIVE QUALITY GATE
-
-Every Admin page containing a table MUST pass:
-
-```text
-320px
-360px
-375px
-390px
-414px
-```
-
-without:
-
-```text
-❌ page-level horizontal scroll
-❌ clipped content
-❌ inaccessible actions
-❌ unreadable text
-❌ broken filters
-❌ overflowing toolbar
-```
-
----
-
-# 51. MOBILE QUALITY GATE
-
-A page FAILS the UX Quality Gate if:
-
-```text
-Desktop works
-BUT
-Mobile is only a compressed desktop layout
-```
-
-or:
-
-```text
-Mobile creates unintended horizontal page scrolling
-```
-
-or:
-
-```text
-Admin table breaks the page width
-```
-
----
-
-# 52. AI MOBILE IMPLEMENTATION RULE
-
-Before declaring a responsive page complete, AI MUST inspect:
-
-```text
-Desktop
-Tablet
-Mobile
-```
-
-and explicitly verify:
-
-```text
-No horizontal page overflow
-No clipped content
-No inaccessible actions
-No broken tables
-No broken forms
-No broken navigation
-```
-
----
-
-# 53. AI RESPONSIVE PROHIBITIONS
-
-AI MUST NOT:
-
-```text
-❌ simply shrink desktop
-❌ hide overflow to hide bugs
-❌ reduce everything to tiny text
-❌ compress tables until unreadable
-❌ use fixed desktop widths on mobile
-❌ force every desktop component into mobile unchanged
-❌ assume one breakpoint solves responsiveness
-❌ use page-level horizontal scrolling as a table solution
-❌ sacrifice accessibility to fit content
-```
-
----
-
-# 54. UX IMPLEMENTATION LOOP
-
-For every major interface:
-
-```text
-Requirement
-↓
-User Flow
-↓
-Desktop UX
-↓
-Mobile UX
-↓
-Component Design
-↓
-Implementation
-↓
-Responsive Testing
-↓
-Accessibility Testing
-↓
-UX Review
-↓
-Quality Gate
-```
-
----
-
-# 55. UX DEFINITION OF DONE
-
-A UX feature is complete only when:
-
-* Desktop behavior is correct
-* Mobile behavior is intentionally designed
-* Tablet behavior is acceptable
-* RTL is correct where required
-* Touch interaction is usable
-* Keyboard interaction works
-* Focus behavior works
-* Loading states exist
-* Error states exist
-* Empty states exist
-* Important workflows are page-first
-* Complex tables have a mobile strategy
-* No unintended page-level horizontal scroll exists
-* Admin mobile behavior has been tested
-* Accessibility baseline is satisfied
-
----
-
-# 56. FINAL UX RULE
-
-The following is NOT acceptable:
-
-```text
-Desktop Design
-↓
-CSS shrink
-↓
-"Responsive Complete"
-```
-
-The required process is:
-
-```text
-Desktop UX
-+
-Mobile UX
-+
-Tablet UX
-+
-RTL
-+
-Accessibility
-+
-Real User Flows
-↓
-Implementation
-↓
-Responsive Verification
-↓
-UX Quality Gate
-```
-
-Mobile is a first-class product experience.
-
-Admin tables and complex data interfaces MUST be specifically designed for mobile.
-
-No component is allowed to break the width of the application and force the user to horizontally scroll the entire website.
