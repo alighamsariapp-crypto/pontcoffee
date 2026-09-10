@@ -1,1347 +1,832 @@
-# API RULES
 
-## 1. PURPOSE
+````md
+# API RULES — PONT CAFE
 
-This document defines the mandatory rules for all application APIs.
+Version: 1.0
+Status: Active
+Project: PONT CAFE Digital Menu
 
-It controls:
+---
 
-* API architecture
-* Endpoint design
-* HTTP methods
-* Request contracts
-* Response contracts
+## 1. Purpose
+
+این فایل قوانین استفاده از API در پروژه PONT CAFE را تعریف می‌کند.
+
+API در این پروژه یک الزام برای همه بخش‌ها نیست.
+
+معماری اصلی پروژه بر پایه:
+
+- Laravel
+- PHP 8.3+
+- MySQL/MariaDB
+- Blade
+- Tailwind CSS
+- Alpine.js در صورت نیاز
+
+است.
+
+صفحات اصلی منوی مشتری باید در صورت امکان مستقیماً توسط Laravel و Blade رندر شوند.
+
+---
+
+## 2. Source of Truth
+
+مرجع اصلی پروژه:
+
+`PROJECT_SPEC.md`
+
+در صورت تعارض بین این فایل و `PROJECT_SPEC.md`، مشخصات پروژه اولویت دارد.
+
+---
+
+## 3. API Is Optional
+
+برای هر قابلیت نباید به صورت خودکار API ساخته شود.
+
+قبل از ساخت API باید مشخص شود که واقعاً به API نیاز است یا خیر.
+
+API فقط زمانی ساخته شود که یکی از موارد زیر وجود داشته باشد:
+
+- نیاز واقعی Frontend به داده مستقل
+- نیاز به ارتباط با سیستم خارجی
+- نیاز به AJAX/Asynchronous interaction واقعی
+- نیاز احتمالی به مصرف داده توسط کلاینت دیگر
+- نیاز به یک integration مشخص
+
+برای صفحات ساده منو، API جداگانه ایجاد نشود.
+
+---
+
+## 4. Server Rendered Menu
+
+صفحات عمومی منو باید ترجیحاً با Laravel + Blade پیاده‌سازی شوند.
+
+نمونه:
+
+```text
+Request
+   ↓
+Laravel Route
+   ↓
+Controller
+   ↓
+Service
+   ↓
+Eloquent
+   ↓
+Blade View
+````
+
+نباید برای نمایش ساده دسته‌بندی یا محصول، API غیرضروری ایجاد شود.
+
+---
+
+## 5. Customer Menu Routes
+
+مسیرهای اصلی مشتری باید مستقیماً توسط Laravel مدیریت شوند.
+
+نمونه:
+
+```text
+/
+ /menu/cafe
+ /menu/cafe/hot-bar
+ /menu/cafe/cold-bar
+ /menu/cafe/dessert
+ /menu/restaurant
+ /menu/restaurant/breakfast
+ /menu/restaurant/lunch
+ /menu/restaurant/dinner
+ /menu/product/{slug}
+```
+
+این مسیرها در حالت عادی نیازی به REST API جداگانه ندارند.
+
+---
+
+## 6. Admin
+
+پنل مدیریت نیز در V1 می‌تواند با Laravel + Blade پیاده‌سازی شود.
+
+CRUDهای مدیریت باید از طریق:
+
+* Controllers
+* Form Requests
+* Services
+* Eloquent Models
+* Blade Views
+
+انجام شوند.
+
+برای عملیات ساده Admin، ساخت API جداگانه ممنوع است مگر اینکه نیاز واقعی وجود داشته باشد.
+
+---
+
+## 7. REST API
+
+اگر API لازم شد، طراحی آن باید RESTful و استاندارد باشد.
+
+اصول:
+
+* استفاده صحیح از HTTP methods
+* URLهای قابل فهم
+* Response structure ثابت
+* HTTP status code صحیح
 * Validation
-* Authentication
 * Authorization
 * Error handling
-* Pagination
-* Filtering
-* Sorting
-* Rate limiting
-* Idempotency
-* API versioning
-* Security
-* Logging
-* Observability
-* API testing
-* Frontend/API integration
-
-The API is a formal contract between application layers.
+* Logging در موارد لازم
 
 ---
 
-# 2. CORE PRINCIPLE
+## 8. HTTP Methods
 
-The API is NOT simply a collection of URLs.
-
-It is a controlled contract:
+در صورت استفاده از API:
 
 ```text
-Client
-↓
-HTTP Request
-↓
-Authentication
-↓
-Authorization
-↓
-Validation
-↓
-Application / Business Logic
-↓
-Database / External Service
-↓
-Response Contract
-↓
-Client
+GET     Read
+POST    Create
+PUT     Full Update
+PATCH   Partial Update
+DELETE  Delete
 ```
 
-Every production endpoint MUST follow this boundary.
+از استفاده اشتباه از HTTP methods خودداری شود.
 
 ---
 
-# 3. NO FAKE API
+## 9. API Versioning
 
-Production APIs MUST NOT return fake success responses.
+در صورت ایجاد API عمومی یا قابل توسعه، نسخه‌بندی انجام شود.
 
-Prohibited:
-
-```text
-❌ Hardcoded JSON
-❌ Fake CRUD
-❌ Fake database response
-❌ Simulated order creation
-❌ Fake payment success
-❌ Fake inventory response
-❌ Fake authentication
-❌ Fake authorization
-❌ Random generated production data
-```
-
-Mock APIs are allowed only for:
-
-* automated tests
-* local development
-* explicit prototypes
-
-and MUST be isolated from production code.
-
----
-
-# 4. API CONTRACT FIRST
-
-Before implementing an endpoint, define:
-
-```text
-Endpoint
-HTTP method
-Authentication
-Authorization
-Request parameters
-Request body
-Validation
-Response
-Error responses
-Side effects
-Idempotency
-Pagination
-Rate limits
-```
-
-The API contract MUST be known before implementation.
-
----
-
-# 5. API SPECIFICATION
-
-Projects SHOULD maintain a machine-readable API specification.
-
-Recommended standard:
-
-```text
-OpenAPI
-```
-
-The specification should describe applicable:
-
-* paths
-* methods
-* parameters
-* request bodies
-* response schemas
-* authentication
-* errors
-* reusable schemas
-
-The API implementation MUST NOT silently diverge from the documented contract.
-
----
-
-# 6. HTTP METHODS
-
-Use HTTP methods according to their intended semantics.
-
-Typical REST mapping:
-
-```text
-GET
-→ retrieve
-
-POST
-→ create / trigger a non-idempotent operation
-
-PUT
-→ replace/update a resource
-
-PATCH
-→ partially update a resource
-
-DELETE
-→ remove a resource
-```
-
-Do not use `POST` for everything simply because it is convenient.
-
----
-
-# 7. RESOURCE-ORIENTED ENDPOINTS
-
-Prefer predictable resource-oriented URLs.
-
-Example:
-
-```text
-GET    /api/v1/products
-GET    /api/v1/products/:id
-POST   /api/v1/products
-PATCH  /api/v1/products/:id
-DELETE /api/v1/products/:id
-```
-
-Avoid unclear endpoints such as:
-
-```text
-/api/doProductThing
-/api/processData
-/api/updateEverything
-```
-
-unless the endpoint represents a genuine domain action.
-
----
-
-# 8. DOMAIN ACTIONS
-
-Some operations are actions rather than simple CRUD.
-
-Examples:
-
-```text
-POST /api/v1/orders/:id/cancel
-POST /api/v1/orders/:id/confirm
-POST /api/v1/orders/:id/pay
-POST /api/v1/inventory/:id/adjust
-```
-
-Domain actions MUST:
-
-* have explicit authorization
-* validate state transitions
-* validate input
-* be server-authoritative
-* define side effects
-* be safe against unintended repetition where required
-
----
-
-# 9. API VERSIONING
-
-Production APIs SHOULD have an explicit versioning strategy.
-
-Example:
+نمونه:
 
 ```text
 /api/v1/...
 ```
 
-Versioning must be consistent.
-
-Do not introduce incompatible breaking changes to a public API without an intentional versioning/migration strategy.
+اما برای قابلیت‌های داخلی که صرفاً توسط Blade استفاده می‌شوند، API فقط به دلیل نسخه‌بندی ایجاد نشود.
 
 ---
 
-# 10. REQUEST VALIDATION
+## 10. Request Validation
 
-Every external request MUST be validated server-side.
+تمام داده‌های ورودی API باید Validate شوند.
 
-Validate:
+ترجیحاً از Laravel Form Request استفاده شود.
 
-* path parameters
-* query parameters
-* headers where relevant
-* request body
-* arrays
-* nested objects
-* strings
-* numbers
-* dates
-* enums
-* pagination values
-* filtering values
-* sorting values
+Validation نباید فقط در Frontend انجام شود.
 
-Never trust frontend validation.
+Frontend validation می‌تواند برای UX وجود داشته باشد، اما امنیت و صحت داده باید در Server تضمین شود.
 
 ---
 
-# 11. VALIDATION ORDER
+## 11. Authorization
 
-Preferred flow:
+Authentication و Authorization باید در Server انجام شود.
 
-```text
-Request
-↓
-Parse
-↓
-Authentication
-↓
-Authorization
-↓
-Validation
-↓
-Business Rules
-↓
-Database / Service
-↓
-Response
-```
+هیچ API نباید صرفاً بر اساس داده ارسال‌شده از Client به کاربر اجازه دسترسی بدهد.
 
-The exact order may vary for security or performance reasons, but authorization and validation MUST NOT be accidentally bypassed.
+برای Admin:
+
+* احراز هویت
+* بررسی Role
+* بررسی Permission در صورت وجود
+
+الزامی است.
 
 ---
 
-# 12. SCHEMA VALIDATION
+## 12. Authentication
 
-Request and response schemas SHOULD be explicit.
+در PONT CAFE V1:
 
-Example:
+* Customer authentication وجود ندارد.
+* Customer account وجود ندارد.
+* Customer API authentication مورد نیاز نیست.
 
-```text
-CreateProductRequest
-UpdateProductRequest
-ProductResponse
-ProductListResponse
-ErrorResponse
-```
-
-Do not pass arbitrary objects between API layers.
+Admin authentication فقط برای بخش مدیریت مورد نیاز است.
 
 ---
 
-# 13. MASS ASSIGNMENT PROTECTION
+## 13. Public Menu Data
 
-Do NOT automatically bind the entire client payload to a database object.
+داده‌هایی که برای مشتری نمایش داده می‌شوند باید فقط شامل اطلاعات مورد نیاز منو باشند.
 
-Bad:
+اطلاعات داخلی مانند:
 
-```text
-PATCH /users/:id
+* Password
+* Internal identifiers در صورت عدم نیاز
+* Admin metadata
+* Security data
+* Internal notes
 
-{
-  "name": "...",
-  "role": "super-admin",
-  "permissions": [...]
-}
-```
-
-when the user is only allowed to change their name.
-
-Use explicit allowlists.
-
-Example:
-
-```text
-Allowed fields:
-name
-phone
-avatar
-```
-
-Sensitive fields must be controlled server-side.
+نباید به Client ارسال شوند.
 
 ---
 
-# 14. RESPONSE MINIMIZATION
+## 14. Product API
 
-Return only the fields required by the client/use case.
+اگر در آینده API برای محصولات لازم شد، فقط داده‌های مورد نیاز ارسال شود.
 
-Do NOT automatically serialize an entire database object.
-
-Never expose sensitive/internal fields accidentally.
-
-Examples of potentially restricted fields:
-
-```text
-passwordHash
-internalNotes
-permissions
-securityFlags
-privateTokens
-internalMetadata
-paymentSecrets
-```
-
-Response DTOs SHOULD explicitly define what is exposed.
-
-OWASP specifically identifies excessive exposure and unauthorized property access as API security risks.
-
----
-
-# 15. RESPONSE CONTRACT
-
-Responses MUST have predictable structures.
-
-Example:
+نمونه:
 
 ```json
 {
-  "data": {},
-  "meta": {}
+  "id": 1,
+  "slug": "product-slug",
+  "name": "Product Name",
+  "description": "Product description",
+  "price": 120000,
+  "image": "/storage/products/example.webp",
+  "is_sold_out": false
 }
 ```
 
-or the project's explicitly defined equivalent.
-
-The project MUST choose one consistent response convention.
-
-Do not randomly mix:
-
-```text
-{ data: ... }
-
-{ result: ... }
-
-{ payload: ... }
-
-{ item: ... }
-```
-
-without a documented reason.
+ساختار واقعی باید با نیاز پروژه هماهنگ باشد.
 
 ---
 
-# 16. LIST RESPONSES
+## 15. Category API
 
-List endpoints SHOULD have a consistent structure.
+اگر API دسته‌بندی ایجاد شد، فقط داده‌های لازم برای Navigation و Menu نمایش داده شوند.
 
-Example:
+داده‌های غیرضروری Database نباید expose شوند.
+
+---
+
+## 16. Localization
+
+API در صورت استفاده باید با سیستم زبان پروژه سازگار باشد.
+
+زبان‌های V1:
+
+```text
+fa
+ar
+en
+```
+
+Response باید با Locale معتبر درخواست هماهنگ باشد.
+
+نباید Translationها به شکل غیرضروری و بدون نیاز به Client ارسال شوند.
+
+---
+
+## 17. RTL / LTR
+
+API مسئول Layout نیست.
+
+API فقط داده و metadata لازم را ارائه می‌کند.
+
+تصمیم مربوط به:
+
+* RTL
+* LTR
+* Typography
+* Direction
+* Layout
+
+در لایه Presentation انجام می‌شود.
+
+---
+
+## 18. Availability
+
+وضعیت محصول باید از منطق مرکزی پروژه دریافت شود.
+
+وضعیت‌ها شامل:
+
+```text
+Available
+Sold Out
+Outside Service Hours
+```
+
+نباید هر Controller یا API منطق متفاوتی برای Availability داشته باشد.
+
+منطق Availability باید در Service مرکزی قرار گیرد.
+
+---
+
+## 19. Error Response
+
+در APIهای مورد استفاده، خطاها باید ساختار قابل پیش‌بینی داشته باشند.
+
+نمونه:
 
 ```json
 {
-  "data": [],
-  "pagination": {
-    "hasNextPage": true,
-    "nextCursor": "..."
+  "success": false,
+  "message": "Validation failed.",
+  "errors": {
+    "name": [
+      "The name field is required."
+    ]
   }
 }
 ```
 
-The exact structure is project-specific.
-
-Consistency is mandatory.
+پیام خطا نباید اطلاعات حساس سیستم را افشا کند.
 
 ---
 
-# 17. PAGINATION
+## 20. HTTP Status Codes
 
-Large collections MUST be paginated.
+از Status Code مناسب استفاده شود.
 
-The server MUST enforce maximum page size.
-
-Example:
-
-```text
-?page=1&limit=20
-```
-
-or cursor-based pagination:
-
-```text
-?cursor=...
-&limit=20
-```
-
-The client MUST NOT be allowed to request unlimited records.
-
-OWASP identifies unrestricted response size/resource consumption as an API risk.
-
----
-
-# 18. CURSOR PAGINATION
-
-Cursor-based pagination SHOULD be preferred for large or frequently changing datasets when supported by the database.
-
-Cursors MUST NOT expose sensitive internal information.
-
-Avoid building cursors from secret or private data.
-
----
-
-# 19. FILTERING
-
-Filtering MUST use an explicit allowlist.
-
-Example:
-
-```text
-/products?category=networking&status=active
-```
-
-Do not allow arbitrary database expressions to pass from the client.
-
----
-
-# 20. SORTING
-
-Sorting fields MUST be allowlisted.
-
-Example:
-
-```text
-?sort=createdAt
-&order=desc
-```
-
-Do NOT allow the client to inject arbitrary database field expressions.
-
----
-
-# 21. SEARCH
-
-Search endpoints MUST enforce:
-
-* maximum query length
-* pagination
-* allowed searchable fields
-* rate limits where appropriate
-* safe query construction
-
-Do not pass raw search syntax directly to the database.
-
----
-
-# 22. RESPONSE SIZE LIMITS
-
-Every API should define reasonable limits for:
-
-* request body size
-* response size
-* page size
-* array size
-* string length
-* file upload size
-* batch operation size
-
-Limits MUST reflect business requirements.
-
----
-
-# 23. RATE LIMITING
-
-Rate limiting MUST be applied where resource consumption or abuse is possible.
-
-High-risk examples:
-
-```text
-login
-password reset
-OTP
-search
-file upload
-email sending
-SMS
-coupon validation
-payment creation
-bulk operations
-admin actions
-```
-
-Limits should be based on:
-
-* endpoint
-* user
-* IP
-* authentication state
-* business risk
-
-where appropriate.
-
----
-
-# 24. RESOURCE CONSUMPTION
-
-APIs MUST protect expensive operations.
-
-Limit:
-
-```text
-CPU-heavy operations
-memory-heavy operations
-large payloads
-large result sets
-batch size
-file uploads
-external API calls
-database reads/writes
-```
-
-OWASP API4 specifically recommends limits for request size, number of records, interaction frequency and expensive operations.
-
----
-
-# 25. AUTHENTICATION
-
-Protected endpoints MUST verify authentication.
-
-Authentication MUST happen server-side.
-
-Do NOT trust:
-
-```text
-userId
-role
-email
-permissions
-isAdmin
-```
-
-provided by the client as proof of identity or authority.
-
----
-
-# 26. AUTHORIZATION
-
-Authentication answers:
-
-```text
-Who are you?
-```
-
-Authorization answers:
-
-```text
-What are you allowed to do?
-```
-
-Both are required where applicable.
-
----
-
-# 27. FUNCTION-LEVEL AUTHORIZATION
-
-Every protected endpoint MUST explicitly enforce the required permission.
-
-Do NOT rely on the frontend hiding a button.
-
-Example:
-
-```text
-DELETE /api/v1/products/:id
-```
-
-must independently verify the caller can delete products.
-
-OWASP identifies missing function-level authorization as a major API security risk.
-
----
-
-# 28. OBJECT-LEVEL AUTHORIZATION
-
-Authorization MUST also verify access to the specific resource.
-
-Example:
-
-```text
-GET /api/v1/orders/123
-```
-
-must verify that the current user is allowed to access order `123`.
-
-Being authenticated does NOT automatically grant access to every object.
-
----
-
-# 29. PROPERTY-LEVEL AUTHORIZATION
-
-Authorization may also apply to individual fields.
-
-Example:
-
-```text
-User:
-name
-email
-
-Admin:
-name
-email
-role
-permissions
-internalNotes
-```
-
-The API MUST NOT expose or accept protected fields simply because the underlying object contains them.
-
----
-
-# 30. ADMIN APIs
-
-Administrative endpoints MUST have explicit authorization.
-
-Do not assume:
-
-```text
-/api/admin/*
-```
-
-is automatically secure.
-
-Security must be enforced by authorization middleware/business rules, not URL naming.
-
----
-
-# 31. DEFAULT DENY
-
-Authorization SHOULD follow:
-
-```text
-Deny by default
-↓
-Explicit permission
-↓
-Allow
-```
-
-Do not create broad access and attempt to remove permissions afterward.
-
----
-
-# 32. AUTHORIZATION MATRIX
-
-Projects with multiple roles SHOULD maintain a permission matrix.
-
-Example:
-
-```text
-Role
-+
-Resource
-+
-Action
-=
-Permission
-```
-
-Example:
-
-```text
-admin
-products
-create
-```
-
-Do not scatter role checks throughout random controllers.
-
----
-
-# 33. ERROR STATUS CODES
-
-Use HTTP status codes according to their semantics.
-
-Typical baseline:
+نمونه:
 
 ```text
 200 OK
 201 Created
-202 Accepted
 204 No Content
-
 400 Bad Request
 401 Unauthorized
 403 Forbidden
 404 Not Found
-409 Conflict
-422 Unprocessable Content
+422 Unprocessable Entity
 429 Too Many Requests
-
 500 Internal Server Error
-502 Bad Gateway
-503 Service Unavailable
 ```
 
-The exact use of each status must remain consistent.
-
-HTTP status codes communicate the class and result of the request.
+از `200` برای تمام خطاها استفاده نشود.
 
 ---
 
-# 34. 401 VS 403
+## 21. Error Handling
 
-Use:
+Exceptionهای داخلی نباید مستقیماً به Client نمایش داده شوند.
+
+ممنوع:
 
 ```text
-401
+SQL query
+Database credentials
+File paths
+Stack traces
+Environment variables
+Internal server details
 ```
 
-when authentication is required or invalid.
+در Production پیام عمومی و امن ارسال شود.
 
-Use:
+---
+
+## 22. Database Access
+
+API نباید مستقیماً SQL را در Controller پخش کند.
+
+ترجیح:
 
 ```text
-403
+Controller
+    ↓
+Service
+    ↓
+Eloquent
 ```
 
-when the caller is authenticated but is not allowed to perform the operation.
+در Queryهای پیچیده، Repository فقط در صورت نیاز واقعی ایجاد شود.
 
-Do not randomly use one for the other.
-
----
-
-# 35. 404 VS AUTHORIZATION
-
-Resource existence and authorization must be handled intentionally.
-
-For sensitive resources, the API may choose not to reveal whether an unauthorized resource exists.
-
-The behavior MUST be consistent with the security model.
+Repository برای همه Modelها به صورت اجباری ساخته نشود.
 
 ---
 
-# 36. ERROR RESPONSE
+## 23. Eloquent
 
-Errors MUST use a predictable structure.
+استفاده از Eloquent باید مطابق معماری Laravel باشد.
 
-Example:
+از:
 
-```json
-{
-  "error": {
-    "code": "PRODUCT_NOT_FOUND",
-    "message": "Product not found.",
-    "details": {}
-  }
-}
+* Relationships
+* Scopes
+* Eager Loading
+* Query Builder
+
+در جای مناسب استفاده شود.
+
+---
+
+## 24. N+1 Prevention
+
+API و Controllerها نباید باعث N+1 Query شوند.
+
+برای Relations مورد نیاز از:
+
+```php
+with()
 ```
 
-The exact structure is project-specific.
+یا روش مناسب دیگر استفاده شود.
+
+نمونه:
+
+```php
+Product::with([
+    'translations',
+    'images'
+])->get();
+```
 
 ---
 
-# 37. ERROR CODES
+## 25. Pagination
 
-Business/application errors SHOULD have stable machine-readable codes.
+برای Endpointهایی که ممکن است حجم زیادی از داده برگردانند، Pagination استفاده شود.
 
-Example:
+برای لیست‌های کوچک و کنترل‌شده، Pagination اجباری نیست.
+
+حدود منطقی باید متناسب با داده واقعی پروژه تعیین شود.
+
+---
+
+## 26. Filtering
+
+اگر API برای لیست محصولات ایجاد شد، Filtering فقط برای نیاز واقعی اضافه شود.
+
+نمونه:
 
 ```text
-PRODUCT_NOT_FOUND
-INVALID_COUPON
-INSUFFICIENT_INVENTORY
-ORDER_ALREADY_CANCELLED
-PERMISSION_DENIED
-VALIDATION_FAILED
+category
+status
+locale
+search
 ```
 
-Do not make frontend logic depend on human-readable messages.
+فیلترهای غیرضروری ایجاد نشوند.
 
 ---
 
-# 38. ERROR MESSAGES
+## 27. Sorting
 
-User-facing messages MUST NOT expose:
+Sorting باید محدود و کنترل‌شده باشد.
 
-* stack traces
-* SQL/database errors
-* internal paths
-* secret values
-* tokens
-* infrastructure details
+Client نباید بتواند نام ستون دلخواه Database را مستقیماً وارد Query کند.
 
-Detailed technical information belongs in logs.
+فقط Sort fieldهای مجاز پذیرفته شوند.
 
 ---
 
-# 39. VALIDATION ERRORS
+## 28. Search
 
-Validation failures SHOULD identify the affected fields.
+اگر Search API ایجاد شد:
 
-Example:
+* Input validation
+* محدودیت طول
+* Query امن
+* جلوگیری از SQL injection
+* Performance مناسب
 
-```json
-{
-  "error": {
-    "code": "VALIDATION_FAILED",
-    "fields": {
-      "email": "Invalid email address.",
-      "quantity": "Quantity must be greater than zero."
-    }
-  }
-}
-```
+الزامی است.
 
 ---
 
-# 40. IDEMPOTENCY
+## 29. Rate Limiting
 
-Operations that create financial, order, inventory or other important side effects SHOULD support idempotency when retries could cause duplication.
+Endpointهای حساس Admin یا Endpointهای عمومی پرمصرف در صورت نیاز باید Rate Limit داشته باشند.
 
-Example:
+Rate limiting باید متناسب با کاربرد واقعی تعیین شود.
 
-```text
-POST /api/v1/orders
-Idempotency-Key: <unique-key>
-```
-
-The server MUST ensure the same logical request does not unintentionally create multiple side effects.
-
-Idempotency is especially important when clients retry after network failures. Established payment APIs use this pattern for safe retries.
+برای هر Endpoint بدون دلیل Rate Limit شدید اعمال نشود.
 
 ---
 
-# 41. IDEMPOTENCY KEY RULES
+## 30. CORS
 
-For endpoints using idempotency:
+CORS فقط زمانی تنظیم شود که API توسط Origin دیگری مصرف شود.
 
-* key must be unique
-* key must have a defined lifetime
-* same key + different payload should be rejected
-* stored result behavior must be defined
-* concurrent requests must be handled safely
+در معماری معمول Blade + Laravel، CORS غیرضروری ایجاد نشود.
 
-Do not treat an idempotency key as a generic request ID.
-
----
-
-# 42. RETRIES
-
-Clients may retry transient failures.
-
-Servers MUST distinguish:
-
-```text
-Retryable
-Non-retryable
-```
-
-operations.
-
-Do NOT blindly retry:
-
-```text
-payment creation
-order creation
-inventory mutation
-external side effect
-```
-
-without idempotency protection.
-
----
-
-# 43. TRANSACTIONS AND API OPERATIONS
-
-When an API operation changes multiple pieces of critical state, the backend MUST use the appropriate transaction/atomic mechanism.
-
-Example:
-
-```text
-Create Order
-+
-Decrease Inventory
-+
-Apply Coupon
-```
-
-must have a defined consistency strategy.
-
-The API MUST NOT report success if required persistence failed.
-
----
-
-# 44. EXTERNAL SERVICES
-
-When an API calls another service:
-
-```text
-API
-↓
-External Service
-```
-
-must define:
-
-* timeout
-* retry strategy
-* error handling
-* authentication
-* response validation
-* rate limits
-* fallback behavior
-* logging
-
-Do not trust third-party responses blindly.
-
----
-
-# 45. THIRD-PARTY API RESPONSES
-
-External responses MUST be validated before entering business logic.
-
-Never assume:
-
-```text
-externalResponse.data
-```
-
-has the shape the application expects.
-
----
-
-# 46. TIMEOUTS
-
-External and expensive operations MUST have explicit timeouts.
-
-An API request must not remain indefinitely blocked because an external service is unavailable.
-
----
-
-# 47. WEBHOOKS
-
-Webhooks MUST be treated as untrusted external input.
-
-Webhook handling should include:
-
-* signature verification
-* authentication
-* payload validation
-* replay protection where applicable
-* idempotent processing
-* event logging
-* safe retry handling
-
-Never trust a webhook merely because it reaches a known URL.
-
----
-
-# 48. FILE UPLOAD APIs
-
-File uploads MUST enforce:
-
-* authentication
-* authorization
-* maximum size
-* allowed types
-* filename rules
-* content validation
-* storage rules
-* abuse protection
-
-Do not trust the file extension alone.
-
----
-
-# 49. BULK APIs
-
-Bulk endpoints MUST have explicit limits.
-
-Example:
-
-```text
-POST /products/bulk
-```
-
-must define:
-
-```text
-maximum records
-maximum payload
-authorization
-validation
-partial failure behavior
-transaction behavior
-rate limits
-```
-
-Do not allow unlimited bulk operations.
-
----
-
-# 50. CACHING
-
-Caching MUST be intentional.
-
-Do not cache:
-
-* private data
-* authorization-sensitive responses
-* user-specific information
-
-without a defined caching policy.
-
-Cache invalidation rules must be explicit.
-
----
-
-# 51. CORS
-
-CORS MUST be explicitly configured.
-
-Do NOT use unrestricted origins in production without a documented reason.
-
-Avoid:
+نباید به صورت پیش‌فرض:
 
 ```text
 Access-Control-Allow-Origin: *
 ```
 
-for authenticated/private APIs when credentials are involved.
+برای APIهای حساس فعال شود.
 
 ---
 
-# 52. SECURITY HEADERS
+## 31. CSRF
 
-Production APIs should use appropriate HTTP security headers according to the application architecture.
+برای درخواست‌های Web و Blade از محافظت CSRF استاندارد Laravel استفاده شود.
 
-Security headers MUST be configured centrally rather than randomly per endpoint.
+APIهایی که به Session/CSRF وابسته هستند باید طبق معماری Laravel تنظیم شوند.
+
+CSRF نباید صرفاً به دلیل وجود API غیرفعال شود.
 
 ---
 
-# 53. REQUEST IDs
+## 32. Mass Assignment
 
-Every API request SHOULD have a traceable request/correlation identifier.
+Modelها باید در برابر Mass Assignment محافظت شوند.
 
-Example:
+از:
 
-```text
-X-Request-ID
+```php
+$fillable
 ```
 
-The exact header is project-specific.
+یا:
 
-Request IDs help correlate:
+```php
+$guarded
+```
+
+به شکل صحیح استفاده شود.
+
+---
+
+## 33. Sensitive Data
+
+API نباید اطلاعات حساس را expose کند.
+
+موارد حساس شامل:
+
+* Password
+* Tokens
+* Secrets
+* Database credentials
+* Internal server information
+* Private admin data
+
+است.
+
+---
+
+## 34. File Upload API
+
+اگر در آینده Upload از طریق API انجام شد:
+
+* MIME type validation
+* File size validation
+* Extension validation
+* Secure filename
+* Storage خارج از مسیر اجرای PHP در صورت نیاز
+* Image processing
+* Authorization
+
+الزامی است.
+
+برای تصاویر محصولات، فایل باید در Storage تعریف‌شده پروژه ذخیره شود.
+
+---
+
+## 35. Image Responses
+
+API نباید تصاویر را Base64 داخل JSON قرار دهد مگر اینکه دلیل فنی مشخصی وجود داشته باشد.
+
+ترجیح:
 
 ```text
-Client
-↓
+image URL/path
+```
+
+تصاویر باید بهینه باشند.
+
+فرمت ترجیحی پروژه:
+
+```text
+WebP
+```
+
+---
+
+## 36. Transactions
+
+عملیات چندمرحله‌ای Database که باید به صورت اتمیک انجام شوند، باید داخل Transaction انجام شوند.
+
+نمونه:
+
+```php
+DB::transaction(function () {
+    // database operations
+});
+```
+
+---
+
+## 37. API Documentation
+
+اگر API قابل استفاده توسط Client یا سیستم دیگر ایجاد شد، Documentation باید به‌روز باشد.
+
+Documentation باید حداقل شامل:
+
+* Endpoint
+* Method
+* Authentication
+* Parameters
+* Request body
+* Response
+* Error responses
+
+باشد.
+
+OpenAPI/Swagger فقط در صورت نیاز واقعی پروژه اضافه شود.
+
+---
+
+## 38. Logging
+
+خطاهای مهم API باید در Logging استاندارد Laravel ثبت شوند.
+
+اطلاعات حساس نباید در Log نوشته شوند.
+
+ممنوع:
+
+```text
+Passwords
+Tokens
+Secrets
+Full sensitive request bodies
+```
+
+---
+
+## 39. Performance
+
+API نباید Queryهای غیرضروری ایجاد کند.
+
+موارد مهم:
+
+* Eager Loading
+* محدود کردن Columns
+* Pagination در داده‌های بزرگ
+* Cache در موارد مناسب
+* جلوگیری از N+1
+* جلوگیری از Responseهای بیش از حد بزرگ
+
+---
+
+## 40. Caching
+
+Cache فقط زمانی استفاده شود که واقعاً به Performance کمک کند.
+
+داده‌های مناسب برای Cache:
+
+* Categories
+* Menu configuration
+* Service hours
+* Public menu data در صورت نیاز
+
+بعد از تغییر داده، Cache مربوطه باید invalidate شود.
+
+---
+
+## 41. No Fake API
+
+هیچ API نباید با:
+
+* Static arrays
+* Fake JSON
+* Mock products
+* Hardcoded orders
+* Random generated data
+
+به عنوان Production implementation ساخته شود.
+
+داده واقعی باید از Database بیاید.
+
+---
+
+## 42. No Unnecessary API Layer
+
+این پروژه نباید صرفاً برای رعایت یک الگوی معماری عمومی، بین Blade و Database یک API غیرضروری ایجاد کند.
+
+نمونه نامناسب:
+
+```text
+Blade
+  ↓
 API
-↓
+  ↓
+Controller
+  ↓
+Service
+  ↓
 Database
-↓
-External Service
-↓
-Logs
 ```
 
-Do not use request IDs as authorization credentials.
+برای صفحات ساده منو این ساختار غیرضروری است.
 
----
-
-# 54. LOGGING
-
-API logs SHOULD capture enough information to diagnose failures.
-
-Useful information:
+ساختار ترجیحی:
 
 ```text
-request ID
-endpoint
-method
-status
-duration
-authenticated subject where appropriate
-error code
-```
-
-Do NOT log:
-
-```text
-passwords
-tokens
-private keys
-payment secrets
-full sensitive payloads
+Blade
+  ↓
+Controller
+  ↓
+Service
+  ↓
+Database
 ```
 
 ---
 
-# 55. API OBSERVABILITY
+## 43. Scope Protection
 
-Monitor:
+API نباید قابلیت‌هایی خارج از Scope پروژه ایجاد کند.
 
-* error rate
-* latency
-* throughput
-* rate-limit events
-* authentication failures
-* authorization failures
-* external service failures
-* database failures
+V1 شامل:
 
-Important endpoints SHOULD have defined operational expectations.
+* Menu
+* Categories
+* Products
+* Product details
+* Languages
+* Availability
+* Service hours
+* Admin management
+
+است.
+
+موارد زیر خارج از Scope هستند:
+
+* Online ordering
+* Cart
+* Checkout
+* Payment
+* Delivery
+* Customer accounts
+* Reservations
+* Ratings
+* Favorites
+* AI assistant
+* Push notifications
+* Crypto wallet
+* Complex analytics
 
 ---
 
-# 56. API TESTING
+## 44. Testing
 
-Every important endpoint MUST have tests covering applicable:
+APIهای واقعی باید تست شوند.
 
-```text
-success
-validation failure
-unauthenticated access
-unauthorized access
-object ownership
-invalid parameters
-empty result
-not found
-conflict
-rate limiting
-server failure
+حداقل موارد:
+
+* Successful response
+* Validation failure
+* Unauthorized request
+* Forbidden request
+* Not found
+* Database integration
+* Localization
+* Availability
+* Security
+
+در صورت نبود API، برای آن تست API ایجاد نشود.
+
+---
+
+## 45. Feature Completion
+
+یک Feature دارای API فقط زمانی Complete محسوب می‌شود که:
+
+* Route درست باشد
+* Validation انجام شود
+* Authorization درست باشد
+* Database واقعی استفاده شود
+* Error handling وجود داشته باشد
+* Security بررسی شده باشد
+* Tests مرتبط وجود داشته باشند
+* Response contract پایدار باشد
+
+---
+
+## 46. Production Rule
+
+هیچ API نباید فقط برای Demo ساخته شود.
+
+هر API که وارد Production می‌شود باید:
+
+* واقعی
+* قابل نگهداری
+* امن
+* متصل به Database واقعی
+* مستند در صورت نیاز
+* تست‌شده
+* متناسب با Scope
+
+باشد.
+
+---
+
+## 47. Final Rule
+
+اصل اصلی API در PONT CAFE:
+
+> API only when needed.
+
+Laravel + Blade معماری اصلی V1 است.
+
+برای قابلیت‌هایی که مستقیماً با Server-rendered Blade قابل پیاده‌سازی هستند، API جداگانه ساخته نشود.
+
+هر API جدید باید قبل از Implementation دارای دلیل فنی مشخص و قابل دفاع باشد.
+
 ```
 
-Security tests are not optional for security-sensitive endpoints.
+**همین فایل را جایگزین `API_RULES.md` کن.**
 
----
-
-# 57. CONTRACT TESTING
-
-Where practical, API contract tests SHOULD verify:
-
-```text
-Request schema
-Response schema
-Status codes
-Error schema
-Authentication behavior
-Authorization behavior
+بعد از اینکه گفتی **انجام شد**، مستقیم می‌ریم سراغ `CODING_RULES.md`.
 ```
-
-The frontend and backend MUST agree on the same contract.
-
----
-
-# 58. API DOCUMENTATION
-
-Every production endpoint SHOULD document:
-
-* purpose
-* method
-* path
-* authentication
-* permissions
-* request schema
-* response schema
-* errors
-* pagination
-* limits
-* side effects
-
-Undocumented production APIs are difficult to maintain safely.
-
----
-
-# 59. AI API RULES
-
-AI MUST NOT:
-
-```text
-❌ create fake endpoints
-❌ return hardcoded production data
-❌ bypass authentication
-❌ bypass authorization
-❌ trust client roles
-❌ trust client prices
-❌ trust client totals
-❌ accept arbitrary object fields
-❌ expose entire database objects
-❌ return unlimited records
-❌ omit validation
-❌ omit error handling
-❌ ignore rate limits for sensitive operations
-❌ create duplicate endpoints for existing functionality
-❌ silently change API contracts
-❌ claim API integration is complete without testing
-```
-
----
-
-# 60. API IMPLEMENTATION LOOP
-
-For every endpoint:
-
-```text
-Requirement
-↓
-API Contract
-↓
-Authentication
-↓
-Authorization
-↓
-Request Validation
-↓
-Business Logic
-↓
-Database / External Service
-↓
-Response Mapping
-↓
-Error Mapping
-↓
-Rate / Resource Limits
-↓
-Tests
-↓
-Documentation
-```
-
----
-
-# 61. DEFINITION OF DONE
-
-An API feature is complete only when:
-
-* Endpoint contract is defined
-* Request validation exists
-* Response schema exists
-* Authentication is correct
-* Authorization is correct
-* Object-level access is correct
-* Property-level access is correct where applicable
-* Errors use consistent status codes
-* Error structure is consistent
-* Pagination exists where needed
-* Resource limits exist
-* Rate limiting exists where required
-* Idempotency exists where required
-* External services are validated
-* Database operations are correctly integrated
-* Tests pass
-* Documentation is updated
-* No fake production behavior exists
-
----
-
-# 62. SOURCE OF AUTHORITY
-
-These rules are informed by:
-
-* IETF RFC 9110 HTTP Semantics
-* OpenAPI Specification
-* OWASP API Security Top 10
-* OWASP Application Security Verification Standard
-* Firebase/Google Cloud API and security practices
-* The project's `ARCHITECTURE.md`
-* The project's `DATABASE_RULES.md`
-* The project's `SECURITY_RULES.md`
-
-Project-specific API requirements may extend these rules through `PROJECT_SPEC.md`.
-
----
-
-# 63. FINAL RULE
-
-An API is NOT complete because:
-
-```text
-The endpoint returns 200.
-```
-
-An API is complete only when:
-
-```text
-Contract
-+
-Validation
-+
-Authentication
-+
-Authorization
-+
-Business Logic
-+
-Persistence
-+
-Error Handling
-+
-Resource Protection
-+
-Testing
-+
-Documentation
-```
-
-are correctly implemented.
-
-The API MUST be treated as a security boundary and a long-term contract.
