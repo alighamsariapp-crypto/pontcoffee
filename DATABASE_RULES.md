@@ -1,1340 +1,768 @@
-# DATABASE RULES
+DATABASE RULES — PONT CAFE
 
-## 1. PURPOSE
+1. PURPOSE
 
-This document defines mandatory rules for database architecture and implementation.
+Mandatory database rules for PONT CAFE Digital Menu.
 
-It controls:
+Production database:
 
-* Data modeling
-* Collections and documents
-* Relationships
-* Validation
-* Database access
-* Queries
-* Indexes
-* Transactions
-* Atomic writes
-* Security
-* Authorization
-* Migrations
-* Data integrity
-* Performance
-* Pagination
-* Auditing
-* Backup/recovery considerations
-* Frontend/backend database boundaries
+MySQL or MariaDB
 
-These rules apply to all production database implementations.
+Laravel Eloquent / Query Builder
 
----
+Laravel migrations
 
-# 2. CORE PRINCIPLE
+Linux hosting
 
-The database is a production system, not a temporary storage layer.
+These rules cover data modeling, relationships, validation, queries, indexes, transactions, security, migrations, integrity, performance, backups, and testing.
 
-A feature is NOT complete when:
+2. CORE PRINCIPLE
 
-```text
-UI exists
-+
-mock data exists
-```
+The database is the authoritative source of persistent application data.
 
-A feature is complete only when:
+Production flow:
 
-```text
 UI
 ↓
-API / Application Layer
+Laravel Controller / Service
 ↓
 Validation
 ↓
-Database Operation
+Authorization
+↓
+Eloquent / Query Builder
+↓
+MySQL / MariaDB
 ↓
 Persistence
 ↓
-Response
-↓
-UI State
-```
+Blade Response
 
-is fully connected and verified.
+A feature is NOT complete when only its UI or mock data exists.
 
----
+3. NO MOCK DATABASE IN PRODUCTION
 
-# 3. NO MOCK DATABASE IN PRODUCTION
+Prohibited in production:
 
-The following are prohibited as production implementations:
+In-memory arrays as persistent storage
 
-```text
-❌ In-memory arrays
-❌ Hardcoded database objects
-❌ Fake CRUD
-❌ Fake persistence
-❌ Local-only production storage
-❌ Mock success responses
-❌ Fake inventory
-❌ Fake orders
-❌ Fake users
-❌ Fake payment records
-```
+Hardcoded products/categories as the source of truth
 
-Mocks may only exist in:
+Fake CRUD
 
-* tests
-* development fixtures
-* explicit prototypes
+Fake persistence
 
-and MUST be clearly isolated from production code.
+Fake success responses
 
----
+Browser-only authoritative storage
 
-# 4. DATABASE SOURCE OF TRUTH
+Mocks, factories, and fixtures are allowed only for tests/development.
 
-Each persistent entity MUST have one authoritative source of truth.
+4. DATABASE SOURCE OF TRUTH
 
-Example:
+PONT CAFE persistent data MUST have one authoritative source in MySQL/MariaDB.
 
-```text
-Product
-→ Database
+users                  → Users
+categories             → Categories
+category_translations  → Localized categories
+products               → Products
+product_translations   → Localized products
+product_images         → Product images
+service_hours          → Service hours
+settings               → Settings
+menu_settings          → Menu settings
 
-Order
-→ Database
+Caching must never replace the database as the source of truth.
 
-User
-→ Database
+5. DATABASE TECHNOLOGY
 
-Inventory
-→ Database
-```
+PONT CAFE V1 uses:
 
-Do not maintain conflicting copies of the same authoritative data in:
+Laravel
+PHP 8.3+
+MySQL / MariaDB
+Laravel Eloquent
+Laravel Migrations
+Blade
 
-* frontend state
-* localStorage
-* hardcoded constants
-* multiple unrelated collections
+Firebase and Cloud Firestore are NOT part of the PONT CAFE V1 database architecture.
 
-Caching is allowed only when its synchronization strategy is explicit.
+Do not introduce another database technology without an approved project specification change.
 
----
+6. APPROVED DATABASE ENTITIES
 
-# 5. DATABASE TECHNOLOGY
+Primary entities:
 
-The database technology is project-specific.
-
-The project MUST define:
-
-* database engine
-* hosting
-* environment
-* access method
-* schema/data model
-* security model
-* backup strategy
-* migration strategy
-* testing strategy
-
-For Cloud Firestore projects, these rules apply to:
-
-* collections
-* documents
-* subcollections
-* queries
-* indexes
-* transactions
-* batched writes
-* Security Rules
-* Firebase Authentication
-* server-side IAM
-
----
-
-# 6. FIRESTORE DATA MODEL
-
-For Cloud Firestore:
-
-```text
-Collection
-    ↓
-Document
-    ↓
-Fields
-    ↓
-Subcollection
-    ↓
-Document
-```
-
-Collections MUST NOT contain raw fields directly.
-
-Documents MUST NOT contain collections directly.
-
-Use subcollections when hierarchical data is genuinely related to a parent document.
-
----
-
-# 7. DOCUMENT DESIGN
-
-Firestore documents should generally remain focused and appropriately sized.
-
-Do NOT create giant documents containing an entire application state.
-
-Bad:
-
-```text
 users
-└── one-document-containing-everything
-```
 
-Prefer separate entities and subcollections where the data has different lifecycle, access, query or scaling requirements.
-
----
-
-# 8. COLLECTION NAMING
-
-Collection names MUST be:
-
-* predictable
-* consistent
-* plural where the project convention requires it
-* documented
-
-Example:
-
-```text
-users
-products
 categories
-orders
-inventory
-reviews
-coupons
-```
 
-Do not randomly mix:
+category_translations
 
-```text
-product
 products
-Product
-Products
-```
 
-within the same database.
+product_translations
 
----
+product_images
 
-# 9. FIELD NAMING
+service_hours
 
-Field names MUST use one consistent naming convention.
+settings
 
-Recommended:
+menu_settings
 
-```text
-camelCase
-```
+Do not add unrelated commerce entities.
 
-Example:
+PONT CAFE V1 does NOT require:
 
-```text
-createdAt
-updatedAt
-productId
-userId
-orderStatus
-unitPrice
-```
+orders
 
-Avoid inconsistent forms:
+order_items
 
-```text
+payments
+
+carts
+
+coupons
+
+delivery
+
+customer accounts
+
+inventory management
+
+unless the project specification is explicitly changed.
+
+7. IDENTIFIERS
+
+Every persistent entity MUST have a stable unique primary key.
+
+IDs MUST NOT depend on display names.
+
+Slugs are for readable URLs/routing and are not a replacement for primary keys.
+
+8. DATABASE NAMING
+
+Database tables and columns MUST use snake_case.
+
+Examples:
+
+product_id
+category_id
 created_at
-createdAt
-CreatedAt
-created-date
-```
+updated_at
+is_active
+is_sold_out
+sort_order
 
-in the same system.
+Do not mix naming conventions.
 
----
+9. PRIMARY AND FOREIGN KEYS
 
-# 10. IDENTIFIERS
+Every table MUST have an intentional primary key.
 
-Every persistent entity MUST have a stable unique identifier.
-
-Identifiers MUST NOT depend on display names.
-
-Bad:
-
-```text
-productId = "Samsung Router"
-```
-
-Better:
-
-```text
-productId = generatedStableId
-```
-
-Display names may change.
-
-Identifiers should generally remain stable.
-
----
-
-# 11. FIRESTORE DOCUMENT IDs
-
-For Firestore:
-
-* Do not use `/` in document IDs.
-* Do not use `.` or `..`.
-* Avoid predictable monotonically increasing IDs for high-write collections.
-* Prefer generated/random IDs where appropriate.
-* Use domain identifiers only when they are intentionally designed and safe.
-
-Sequential IDs can create hotspotting under high write workloads.
-
----
-
-# 12. REFERENCES BETWEEN ENTITIES
-
-Relationships MUST be explicit.
+Relationships MUST use proper foreign keys where appropriate.
 
 Examples:
 
-```text
-productId
-categoryId
-userId
-orderId
-```
+categories.id
+    ↓
+products.category_id
 
-When using Firestore references, use them consistently according to the project's data model.
+products.id
+    ↓
+product_translations.product_id
 
-Do not create undocumented relationships through arbitrary field names.
+products.id
+    ↓
+product_images.product_id
 
----
+Foreign-key delete/update behavior MUST be intentional.
 
-# 13. DENORMALIZATION
+10. ELOQUENT RELATIONSHIPS
 
-NoSQL databases may require intentional denormalization.
+Laravel models MUST accurately represent database relationships.
 
-Denormalized data is allowed only when:
+Category
+├── translations
+├── products
+└── serviceHours
 
-* the reason is documented
-* ownership is clear
-* update synchronization is defined
-* consistency requirements are understood
+Product
+├── category
+├── translations
+└── images
+
+Do not create undocumented relationships through arbitrary fields.
+
+11. MIGRATIONS
+
+Every production schema change MUST be represented by a Laravel migration.
+
+Prohibited:
+
+Manual schema changes without a migration
+
+Silent schema changes
+
+Destructive changes without review
+
+Migrations that do not reproduce the intended schema
+
+Migrations MUST work on a fresh database.
+
+12. SEEDERS AND FACTORIES
+
+Seeders may create required initial categories, settings, admin accounts, or controlled development menu data.
+
+Factories are for tests/development.
+
+Production functionality MUST NOT depend on fake seed data.
+
+13. VALIDATION
+
+All admin input MUST be validated before persistence.
+
+Validate as applicable:
+
+IDs
+
+Names
+
+Slugs
+
+Prices
+
+Booleans
+
+Status values
+
+Translation data
+
+Image uploads/metadata
+
+Service hours
+
+Sort order
+
+Use Laravel Form Request classes where appropriate.
+
+14. AUTHORIZATION
+
+Authorization MUST be enforced server-side.
+
+Hiding an admin control is NOT security.
+
+Create, edit, delete, publish/unpublish, price, availability, image, and settings changes MUST be authorized by Laravel before database writes.
+
+15. CATEGORIES
+
+Approved PONT CAFE structure:
+
+Cafe
+├── Hot Bar
+├── Cold Bar
+└── Dessert
+
+Restaurant
+├── Breakfast
+├── Lunch
+└── Dinner
+
+Do not introduce arbitrary category levels without an approved specification change.
+
+16. CATEGORY TRANSLATIONS
+
+Supported locales:
+
+fa
+ar
+en
+
+Localized category names belong in category_translations.
+
+When one translation per language is intended, enforce:
+
+UNIQUE(category_id, locale)
+
+Do not create separate category records only because the language changes.
+
+17. PRODUCTS
+
+A product record contains authoritative product data defined by PROJECT_SPEC.md.
+
+Typical fields:
+
+id
+category_id
+slug
+price
+is_active
+is_sold_out
+sort_order
+created_at
+updated_at
+
+Do not add ordering, payment, or inventory fields unless explicitly required by a future approved scope.
+
+18. PRODUCT TRANSLATIONS
+
+Localized product content belongs in product_translations.
+
+Supported locales:
+
+fa
+ar
+en
+
+Typical fields:
+
+name
+description
+ingredients
+allergens
+
+When one translation per language is intended, enforce:
+
+UNIQUE(product_id, locale)
+
+19. PRODUCT IMAGES
+
+Images MUST be stored on the configured project hosting/storage system, not as MySQL binary data unless explicitly approved.
+
+Database metadata may include:
+
+product_id
+path
+alt_text
+sort_order
+is_primary
+
+Uploads MUST be validated server-side.
+
+Images SHOULD be optimized for web delivery, preferably WebP where supported.
+
+20. SERVICE HOURS
+
+Service-hour data belongs in service_hours.
+
+Availability MUST use authoritative database settings and server-side time logic.
+
+Do not rely on the browser clock for authoritative availability decisions.
+
+21. PRODUCT AVAILABILITY
+
+The application MUST distinguish:
+
+Active
+Sold Out
+Outside Service Hours
+
+These are separate states.
+
+is_sold_out MUST NOT represent service-hour closure.
+
+Availability logic SHOULD be centralized, for example in AvailabilityService.
+
+22. SERVER-AUTHORITATIVE DATA
+
+The server/database is authoritative for:
+
+Product price
+
+Product status
+
+Category status
+
+Sort order
+
+Translations
+
+Image metadata
+
+Service hours
+
+Admin roles
+
+Menu settings
+
+The browser MUST NOT establish persistent truth.
+
+23. UNIQUE CONSTRAINTS
+
+Values that must be unique SHOULD be protected by database constraints.
+
+Likely examples:
+
+categories.slug
+products.slug
+category_translations(category_id, locale)
+product_translations(product_id, locale)
+
+Application validation does not replace database constraints.
+
+24. INDEXES
+
+Indexes MUST be based on actual query patterns.
+
+Likely useful indexes:
+
+categories.parent_id
+categories.slug
+
+products.category_id
+products.slug
+products.is_active
+products.sort_order
+
+category_translations.category_id
+category_translations.locale
+
+product_translations.product_id
+product_translations.locale
+
+product_images.product_id
+
+Do not create indexes blindly.
+
+25. QUERY DESIGN
+
+Queries MUST retrieve only data required by the operation.
+
+Public menu:
+
+Requested category
+↓
+Required products
+↓
+Required translations/images
+
+Do not load the entire catalog on every request without a real reason.
+
+Database filtering SHOULD be used instead of unnecessary browser-side filtering.
+
+26. N+1 PREVENTION
+
+Avoid one database query per displayed product.
+
+Use intentional Eloquent eager loading such as:
+
+with(...)
+
+Verify collection queries involving categories, translations, and images.
+
+27. PAGINATION
+
+Admin lists that can grow SHOULD use pagination.
+
+The current public menu is intentionally small, so pagination is not mandatory for every customer-facing list.
+
+Do not add pagination solely for architectural complexity.
+
+28. TRANSACTIONS
+
+Use Laravel database transactions when multiple related writes must succeed or fail together.
 
 Example:
 
-```text
-Order
-├── productId
-├── productNameSnapshot
-├── unitPriceSnapshot
-└── ...
-```
+Product
++
+Translations
++
+Image metadata
 
-A historical order may intentionally store snapshots of product information.
+when the operation is intentionally atomic.
 
-This is different from accidental duplication.
+Do not use transactions unnecessarily for simple reads.
 
----
+29. DELETE STRATEGY
 
-# 14. DATA OWNERSHIP
+Deletion behavior MUST be intentional.
 
-Every field MUST have a clear owner.
+For owned records such as:
 
-For example:
+product_translations
+product_images
 
-```text
-price
-→ Product/Admin domain
+define whether they are:
 
-inventory
-→ Inventory domain
+Cascade deleted
 
-orderTotal
-→ Order/Pricing domain
-```
+Deleted by application logic
 
-The frontend MUST NOT become the authoritative owner of business-critical values.
+Retained
 
----
+Soft deleted
 
-# 15. SERVER-AUTHORITATIVE VALUES
+Do not rely on undocumented behavior.
 
-The server/database boundary MUST control business-critical values.
+30. SOFT DELETE
 
-Examples:
+Soft delete is NOT required by default for PONT CAFE V1.
 
-```text
-price
-discount
-inventory
-orderTotal
-shippingCost
-tax
-permissions
-roles
-paymentStatus
-orderStatus
-```
+For menu visibility, prefer:
 
-The client may submit an intention.
+is_active
 
-The server determines the authoritative result.
+when the record should remain in the database.
 
----
+Use Laravel SoftDeletes only when there is a real historical/recovery requirement.
 
-# 16. CLIENT DATA MUST BE UNTRUSTED
+31. CACHE
 
-All client-provided data MUST be treated as untrusted.
+Caching is optional.
 
-Validate:
+The database remains authoritative.
 
-* IDs
-* strings
-* numbers
-* enums
-* dates
-* quantities
-* filters
-* sorting parameters
-* uploaded metadata
-* nested objects
-* arrays
+If menu data is cached:
 
-Never assume that because TypeScript accepts a value, the database should accept it.
+Cache keys MUST be predictable.
 
----
+Invalidation MUST be defined.
 
-# 17. RUNTIME VALIDATION
+Admin changes MUST invalidate affected cache.
 
-TypeScript types do not provide runtime validation.
+Acceptable stale-data behavior MUST be understood.
 
-Database writes MUST validate input at the application boundary.
+File/database cache is sufficient initially.
 
-Recommended flow:
+Redis is NOT required for this project.
 
-```text
-Request
+32. FRONTEND DATABASE BOUNDARY
+
+The browser MUST NOT connect directly to MySQL/MariaDB.
+
+Correct architecture:
+
+Browser
 ↓
-Authentication
+Laravel
 ↓
-Authorization
+Eloquent
 ↓
-Validation
-↓
-Business Rules
-↓
-Database Operation
-```
+MySQL / MariaDB
 
-Invalid data MUST be rejected before persistence.
+33. API BOUNDARY
 
----
+PONT CAFE does NOT require an API for every page.
 
-# 18. DATABASE SCHEMA CONTRACT
+Server-rendered Blade pages may obtain data through Laravel controllers/services.
 
-Even schemaless databases require a documented data contract.
+Create an API only when a real integration or interaction requires it.
 
-For every important entity define:
+Do not create unnecessary REST endpoints for a simple menu.
 
-```text
-Entity
-Fields
-Types
-Required fields
-Optional fields
-Defaults
+34. SQL INJECTION PROTECTION
+
+Use:
+
+Eloquent
+
+Laravel Query Builder
+
+Parameterized queries
+
+Never concatenate untrusted input directly into SQL.
+
+Raw SQL is allowed only when necessary and MUST use parameter binding.
+
+35. MASS ASSIGNMENT
+
+Laravel mass assignment MUST be controlled.
+
+Use appropriate:
+
+$fillable
+
+or:
+
+$guarded
+
+and always pass validated data.
+
+Never pass arbitrary request payloads directly into model updates.
+
+36. DATABASE SECURITY
+
+Database credentials MUST come from environment configuration.
+
+Never commit:
+
+DB_PASSWORD
+DB credentials
+application secrets
+private keys
+
+to GitHub.
+
+Production database access should use the least privilege supported by the hosting environment.
+
+37. DATABASE ERRORS
+
+Production responses MUST NOT expose:
+
+SQL queries
+
+Stack traces
+
+Database credentials
+
+Internal schema details
+
+Connection details
+
+Database errors should be logged securely and converted into appropriate application error states.
+
+38. BACKUPS
+
+Production database backups MUST be part of the hosting/deployment strategy.
+
+Define:
+
+Backup frequency
+
+Retention
+
+Restoration procedure
+
+A backup should be considered reliable only when restoration can be verified.
+
+39. PERFORMANCE
+
+PONT CAFE has a small menu and does NOT require premature database infrastructure.
+
+Do NOT introduce:
+
+Database sharding
+
+Read replicas
+
+Redis clusters
+
+Complex event-driven storage
+
+Unnecessary microservices
+
+Priorities:
+
+Correct schema
+
+Proper indexes
+
+Targeted queries
+
+N+1 prevention
+
+Appropriate caching
+
+Simple maintainable architecture
+
+40. TESTING
+
+Database-related features MUST be tested through the real Laravel database layer.
+
+Tests should cover, where applicable:
+
+Migrations
+
 Relationships
-Allowed values
-Ownership
-Indexes
-Security
-Lifecycle
-```
 
-Firestore being schemaless does NOT mean the application may use undocumented or inconsistent data shapes.
+Validation
 
----
+Authorization
 
-# 19. REQUIRED VS OPTIONAL FIELDS
+CRUD persistence
 
-Every important field MUST be intentionally classified:
+Translation persistence
 
-```text
-Required
-Optional
-Nullable
-Computed
-Server-controlled
-Client-controlled
-Immutable
-Mutable
-```
+Image metadata
 
-Do not allow accidental `undefined`/missing-field states.
+Category/product filtering
 
----
+Availability
 
-# 20. ENUM FIELDS
+Service hours
 
-Fields representing finite states MUST use controlled values.
+Unique constraints
 
-Example:
+A test is NOT valid merely because a mock array changed.
 
-```text
-orderStatus:
-pending
-confirmed
-processing
-shipped
-delivered
-cancelled
-```
+41. PRODUCTION DATA INTEGRITY
 
-Do not allow arbitrary strings when the domain has a fixed state machine.
+Before a database feature is complete, verify:
 
----
-
-# 21. STATUS TRANSITIONS
-
-Important status fields MUST have defined valid transitions.
-
-Example:
-
-```text
-pending
- ↓
-confirmed
- ↓
-processing
- ↓
-shipped
- ↓
-delivered
-```
-
-Invalid transitions MUST be rejected.
-
-The frontend MUST NOT be trusted to enforce status transitions.
-
----
-
-# 22. TIMESTAMPS
-
-Important persistent entities SHOULD include appropriate timestamps.
-
-Common fields:
-
-```text
-createdAt
-updatedAt
-```
-
-Domain-specific timestamps may include:
-
-```text
-publishedAt
-cancelledAt
-paidAt
-shippedAt
-completedAt
-```
-
-Use a consistent timestamp representation throughout the project.
-
----
-
-# 23. IMMUTABLE DATA
-
-Certain values should become immutable after creation.
-
-Examples:
-
-```text
-orderNumber
-paymentTransactionId
-historicalPrice
-createdAt
-userId
-```
-
-If a value must never change, enforce that rule at the appropriate server/database boundary.
-
----
-
-# 24. SOFT DELETE
-
-Soft deletion may be used when historical records must remain available.
-
-Example:
-
-```text
-deletedAt
-isDeleted
-```
-
-If soft delete is used:
-
-* queries must consistently account for it
-* indexes must account for common filters
-* authorization must remain correct
-* admin recovery behavior must be defined
-
-Do not mix hard delete and soft delete randomly.
-
----
-
-# 25. DELETE CASCADE
-
-Do not assume deleting a Firestore document automatically deletes its subcollections.
-
-If a parent document owns child data, the deletion strategy MUST explicitly define what happens to the child data.
-
-Possible strategies:
-
-```text
-Cascade delete
-Archive
-Soft delete
-Retain independently
-```
-
-The choice must be intentional.
-
----
-
-# 26. TRANSACTIONS
-
-Use a transaction when correctness depends on reading current database state before writing.
-
-Examples:
-
-```text
-inventory decrement
-balance update
-counter update
-conditional state transition
-unique constraint simulation
-```
-
-Transactions MUST be used when multiple dependent operations must behave atomically.
-
-Firestore transactions provide atomic read/write behavior.
-
----
-
-# 27. BATCH WRITES
-
-Use batched writes when multiple writes must be committed atomically but do not require reading current values first.
-
-Example:
-
-```text
-Update document A
-Update document B
-Create document C
-Delete document D
-```
-
-All should succeed or none should be committed.
-
----
-
-# 28. TRANSACTION RETRIES
-
-Transaction functions MUST be safe for retry.
-
-Do not place non-idempotent external side effects directly inside transaction callbacks.
-
-Bad:
-
-```text
-transaction callback
+Migration
 ↓
-send payment
+Schema
 ↓
-send email
-```
-
-A transaction may retry.
-
-External side effects should be handled through an appropriate post-commit mechanism.
-
----
-
-# 29. INVENTORY
-
-Inventory operations MUST be server-authoritative.
-
-Never trust:
-
-```text
-clientStock
-```
-
-for final inventory decisions.
-
-Inventory changes that depend on current stock MUST use an atomic transaction or equivalent concurrency-safe mechanism.
-
-Example:
-
-```text
-Read stock
+Model
 ↓
-Verify stock >= requested quantity
-↓
-Decrease stock
-↓
-Create/update order
-```
-
-must be handled atomically when required by the business rules.
-
----
-
-# 30. ORDERS
-
-Order creation MUST NOT depend on frontend-calculated totals.
-
-The server MUST calculate or verify:
-
-```text
-subtotal
-discount
-tax
-shipping
-total
-inventory impact
-```
-
-The client may provide requested quantities/coupon codes, but the authoritative result comes from trusted backend logic.
-
----
-
-# 31. PAYMENTS
-
-Payment-related records MUST be treated as high-integrity data.
-
-Never allow the frontend to directly set:
-
-```text
-paymentStatus = "paid"
-```
-
-or equivalent authoritative payment states.
-
-Payment status MUST be established through trusted server-side verification or payment-provider callbacks.
-
----
-
-# 32. QUERY DESIGN
-
-Queries MUST be designed around actual product requirements.
-
-Before creating a query determine:
-
-* filters
-* sort order
-* pagination
-* expected result size
-* required indexes
-* authorization constraints
-* performance requirements
-
-Do not retrieve the entire collection and filter it in the frontend when the database can perform the required query.
-
----
-
-# 33. NO FULL COLLECTION SCANS WITHOUT JUSTIFICATION
-
-Avoid:
-
-```text
-get all products
-↓
-filter in browser
-```
-
-for production-scale datasets.
-
-Use server/database filtering and pagination.
-
-Full collection reads require explicit justification.
-
----
-
-# 34. PAGINATION
-
-Large datasets MUST use pagination.
-
-Prefer cursor-based pagination where supported.
-
-For Firestore, use cursors rather than offsets.
-
-Pagination MUST be consistent between API and UI.
-
----
-
-# 35. INDEXES
-
-Indexes MUST be treated as part of the database design.
-
-For every important query verify:
-
-```text
-query
-+
-filters
-+
-sort
-+
-index
-```
-
-Do not blindly create indexes for every field.
-
-Unused indexes increase storage and write overhead.
-
-Firestore automatically manages many basic indexes, while compound queries may require additional indexes.
-
----
-
-# 36. INDEX REVIEW
-
-When adding an index:
-
-1. Identify the query that requires it.
-2. Confirm it is actually used.
-3. Confirm the query is necessary.
-4. Evaluate write/storage impact.
-5. Document the index when appropriate.
-
-Indexes MUST NOT be created blindly just because the database console suggests them.
-
----
-
-# 37. LARGE ARRAYS / MAPS
-
-Do not place unbounded or very large arrays/maps inside a single Firestore document.
-
-If data can grow continuously:
-
-```text
-messages
-logs
-events
-reviews
-transactions
-```
-
-consider a collection/subcollection instead.
-
-Large arrays/maps can create indexing and document-size/performance problems.
-
----
-
-# 38. HIGH-WRITE DATA
-
-High-write collections MUST be designed with scalability in mind.
-
-Avoid:
-
-* hotspot-prone sequential IDs
-* unnecessary indexed fields
-* constantly updating the same document
-* unnecessary write amplification
-
-Firestore write performance depends partly on indexing and document access patterns.
-
----
-
-# 39. READ OPTIMIZATION
-
-Prefer targeted reads.
-
-Do not fetch fields/data the application does not need when the database technology supports appropriate projections or query patterns.
-
-Use caching only when:
-
-* cache ownership is clear
-* invalidation is defined
-* stale data is acceptable
-
----
-
-# 40. REAL-TIME LISTENERS
-
-Real-time listeners MUST be used intentionally.
-
-Use them when the feature actually requires real-time updates.
-
-Do not attach listeners to entire collections simply because the database supports realtime updates.
-
-Listeners should:
-
-* be scoped
-* unsubscribe correctly
-* avoid unnecessary reads
-* respect authorization
-
----
-
-# 41. DATABASE SECURITY
-
-Database security MUST be enforced independently from UI visibility.
-
-Hiding a button does NOT secure data.
-
-Security must exist at the database/application boundary.
-
----
-
-# 42. FIRESTORE SECURITY RULES
-
-For client-accessible Firestore:
-
-Security Rules MUST define:
-
-* authentication requirements
-* ownership
-* authorization
-* field validation
-* allowed operations
-* immutable fields
-* allowed state changes
-
-Rules MUST be tested.
-
----
-
-# 43. SERVER-SIDE FIRESTORE ACCESS
-
-Important:
-
-Firestore server SDKs bypass Firestore Security Rules.
-
-When using server-side SDKs:
-
-```text
-Application
-↓
-IAM / server credentials
-↓
-Firestore
-```
-
-must provide the security boundary.
-
-Do not assume Firestore Security Rules protect server SDK operations.
-
----
-
-# 44. AUTHORIZATION
-
-Authorization MUST be enforced on the server/database boundary.
-
-Examples:
-
-```text
-User
-→ own data only
-
-Admin
-→ permitted administrative resources
-
-Super Admin
-→ elevated operations
-```
-
-Never trust a role sent from the client.
-
----
-
-# 45. FIELD-LEVEL PROTECTION
-
-Sensitive fields MUST NOT be freely writable by clients.
-
-Examples:
-
-```text
-role
-permissions
-accountStatus
-paymentStatus
-inventory
-verified
-security flags
-internal notes
-```
-
-Client writes should be explicitly allowlisted where possible.
-
----
-
-# 46. DATA MINIMIZATION
-
-Do not store sensitive information without a business requirement.
-
-Avoid storing:
-
-* unnecessary personal data
-* unnecessary authentication secrets
-* unnecessary payment data
-* redundant copies of sensitive information
-
-Store only what the application actually needs.
-
----
-
-# 47. SECRETS
-
-Never store secrets in ordinary application documents.
-
-Do NOT store:
-
-```text
-API secret
-private key
-database password
-JWT signing secret
-payment secret
-service credential
-```
-
-inside normal user/product/order documents.
-
-Use the appropriate secret/configuration system.
-
----
-
-# 48. AUDIT DATA
-
-Security-sensitive or administrative operations SHOULD be auditable where required.
-
-Examples:
-
-```text
-admin changed product price
-admin changed user role
-order status manually changed
-inventory manually adjusted
-```
-
-Audit records should contain sufficient context to investigate the action without storing unnecessary sensitive information.
-
----
-
-# 49. MIGRATIONS
-
-Database structure changes MUST have a migration strategy.
-
-Examples:
-
-```text
-rename field
-change data type
-split collection
-merge fields
-backfill data
-remove deprecated field
-```
-
-Do not silently change production data shape.
-
----
-
-# 50. BACKWARD COMPATIBILITY
-
-When deploying application and database changes separately, consider compatibility between old and new application versions.
-
-Prefer safe rollout patterns:
-
-```text
-Add
-↓
-Migrate
-↓
-Switch
-↓
-Remove
-```
-
-instead of destructive one-step changes when production compatibility matters.
-
----
-
-# 51. DATABASE TESTING
-
-Database behavior MUST be tested.
-
-Tests SHOULD cover:
-
-* create
-* read
-* update
-* delete
-* validation
-* authorization
-* ownership
-* invalid data
-* concurrency-sensitive operations
-* transactions
-* status transitions
-* indexes/query behavior where appropriate
-
----
-
-# 52. SECURITY RULE TESTING
-
-Firestore Security Rules MUST have automated tests where the application relies on client-side Firestore access.
-
-Test at minimum:
-
-```text
-Unauthenticated
-Authenticated user
-Wrong owner
-Correct owner
-Unauthorized role
-Authorized role
-Invalid fields
-Forbidden field changes
-```
-
----
-
-# 53. DEVELOPMENT DATABASE
-
-Development and production databases MUST be separated.
-
-Never casually connect development tooling to production data.
-
-Use explicit environment configuration.
-
----
-
-# 54. SEED DATA
-
-Seed data may be used for development/testing.
-
-Seed data MUST be:
-
-* clearly identified
-* reproducible
-* environment-specific
-* safe
-
-Seed data MUST NOT accidentally overwrite production data.
-
----
-
-# 55. DATABASE ENVIRONMENTS
-
-Where appropriate:
-
-```text
-Development
-Staging
-Production
-```
-
-should use separate database resources or clearly isolated namespaces.
-
-Production credentials MUST NOT be embedded in development configuration.
-
----
-
-# 56. OBSERVABILITY
-
-Database operations should be observable enough to diagnose:
-
-* slow queries
-* failed writes
-* permission errors
-* transaction conflicts
-* unexpected read volume
-* unexpected write volume
-
-Do not log sensitive database contents unnecessarily.
-
----
-
-# 57. PERFORMANCE
-
-Performance MUST be measured using actual workload characteristics.
-
-Do not optimize based only on assumptions.
-
-Review:
-
-```text
-read count
-write count
-document size
-index count
-query latency
-transaction contention
-listener activity
-```
-
-when performance matters.
-
----
-
-# 58. COST AWARENESS
-
-For usage-based databases, database design must consider cost.
-
-Avoid:
-
-```text
-unnecessary reads
-unbounded listeners
-repeated full collection queries
-excessive indexes
-unnecessary writes
-```
-
-A technically functional database can still be architecturally incorrect if its usage pattern is economically unsustainable.
-
----
-
-# 59. DATABASE CHANGE CONTROL
-
-Changes to:
-
-* collection structure
-* field contracts
-* indexes
-* transactions
-* authorization
-* Security Rules
-* data lifecycle
-* migrations
-
-MUST be reviewed when they affect architecture or production behavior.
-
----
-
-# 60. AI DATABASE RULES
-
-AI MUST NOT:
-
-```text
-❌ create mock persistence
-❌ replace database with arrays
-❌ bypass the database layer
-❌ invent undocumented collections
-❌ invent fields without updating the data contract
-❌ trust client-calculated business values
-❌ skip validation
-❌ skip authorization
-❌ remove transactions for convenience
-❌ create unnecessary indexes
-❌ perform full collection reads without justification
-❌ silently change production data shape
-❌ delete data without an explicit deletion strategy
-❌ claim database integration is complete without verification
-```
-
----
-
-# 61. DATABASE IMPLEMENTATION LOOP
-
-For every database feature:
-
-```text
-Requirement
-↓
-Data Model
-↓
-Access Pattern
+Relationship
 ↓
 Validation
 ↓
 Authorization
 ↓
-Query Design
+Persistence
 ↓
-Index Design
+Read-back
 ↓
-Transaction Strategy
-↓
-Implementation
+Blade UI
 ↓
 Tests
+
+All relevant layers MUST operate against the real MySQL/MariaDB implementation.
+
+42. SCOPE PROTECTION
+
+PONT CAFE V1 is a digital menu, not an ordering platform.
+
+Do NOT add database entities for:
+
+Orders
+
+Cart
+
+Checkout
+
+Payments
+
+Delivery
+
+Reservations
+
+Customer accounts
+
+Ratings
+
+Favorites
+
+AI assistant
+
+Push notifications
+
+Crypto wallets
+
+Firebase
+
+Firestore
+
+Required external cloud database
+
+Any future feature requires an explicit project specification change before database implementation.
+
+43. SOURCE OF TRUTH
+
+When database implementation rules conflict with project-specific requirements:
+
+AGENTS.md
 ↓
-Performance Review
+PROJECT_SPEC.md
 ↓
-Security Review
-```
+DATABASE_RULES.md
+↓
+Implementation
 
----
+PROJECT_SPEC.md is the project-specific source of truth.
 
-# 62. DEFINITION OF DONE
-
-A database feature is complete only when:
-
-* Data model is documented
-* Data ownership is clear
-* Runtime validation exists
-* Authorization exists
-* Queries are intentional
-* Indexes are reviewed
-* Transactions are used where required
-* Concurrency behavior is considered
-* No mock production persistence exists
-* Frontend/backend/database boundaries are respected
-* Security rules/IAM are correctly configured
-* Relevant tests pass
-* Migration strategy exists when needed
-* Performance/cost implications are understood
-
----
-
-# 63. SOURCE OF AUTHORITY
-
-These rules are informed by:
-
-* Firebase Cloud Firestore Data Model
-* Firebase Cloud Firestore Best Practices
-* Firebase Cloud Firestore Transactions and Batched Writes
-* Firebase Cloud Firestore Security Rules
-* Firebase Authentication
-* Google Cloud IAM
-* OWASP application security principles
-* The project's `ARCHITECTURE.md`
-* The project's `API_RULES.md`
-* The project's `SECURITY_RULES.md`
-
-Project-specific database requirements may extend these rules through `PROJECT_SPEC.md`.
-
----
-
-# 64. FINAL RULE
-
-The database is not a detail hidden behind the UI.
-
-It is a core part of the product architecture.
-
-Therefore:
-
-```text
-No fake persistence.
-No undocumented data model.
-No unvalidated writes.
-No client-controlled authority.
-No missing authorization.
-No uncontrolled queries.
-No unreviewed schema changes.
-```
-
-A feature is not complete until its data is correctly modeled, persisted, secured, queried, tested and verified.
+Changes to the approved database technol
