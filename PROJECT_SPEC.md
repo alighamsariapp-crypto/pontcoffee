@@ -1,18 +1,4 @@
 
-# حالا `PROJECT_SPEC.md`
-
-من پیشنهاد می‌کنم **فعلاً هیچ فایل دیگری را تغییر ندهی**.
-
-اول کپی ریپو را بگیر، بعد فایل زیر را دقیقاً با نام:
-
-```text
-PROJECT_SPEC.md
-```
-
-در Root قرار بده.
-
-این نسخه را عمداً طوری می‌نویسم که AI Studio وقتی ریپو را به آن وصل می‌کنی، **مدیر پروژه باشد، ولی خودش تصمیمات بزرگ جدید اختراع نکند.**
-
 ````markdown
 # PONT CAFE — PROJECT SPECIFICATION
 
@@ -2160,33 +2146,3 @@ Continuous Audit
 The goal is not to generate a large amount of code quickly.
 
 The goal is to build a small, clean, reliable and production-ready digital menu correctly.
-
-````
-
-### یک نکته مهم
-
-من عمداً داخل `PROJECT_SPEC.md` نگفتم «AI همه چیز را خودش بسازد». برعکس، سیستم را طوری تنظیم کردم که AI **مدیر مسیر پروژه** باشد:
-
-```text
-PROJECT
-   ↓
-PHASE
-   ↓
-FEATURE
-   ↓
-DESIGN
-   ↓
-PLAN
-   ↓
-IMPLEMENT
-   ↓
-TEST
-   ↓
-AUDIT
-   ↓
-GATE
-   ↓
-NEXT FEATURE
-````
-
-بعد که ریپوی کپی‌شده را به من/AI Studio وصل کردی، مرحله بعدی ما **PHASE 00 — Discovery & Audit** است؛ یعنی قبل از ساخت Laravel، خود قوانین، Phaseها، Skills، اسکریپت‌ها و معماری را یک‌بار نهایی بررسی می‌کنیم و بعد دقیقاً مشخص می‌کنیم **اولین Feature چیست و چه چیزی نباید ساخته شود**.
