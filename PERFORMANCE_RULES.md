@@ -1,622 +1,974 @@
-# Performance Rules
+
+# PERFORMANCE RULES — PONT CAFE
+
+Version: 1.0
+Status: Active
+Project: PONT CAFE Digital Menu
+
+---
 
 ## 1. Purpose
 
-This document defines mandatory performance rules for the project.
+This document defines performance requirements for the PONT CAFE application.
 
-Performance MUST be considered during:
+The primary performance goals are:
 
-```text id="p001"
-Product Specification
-↓
-Architecture
-↓
-Design
-↓
-Feature Planning
-↓
-Implementation
-↓
-Integration
-↓
-Testing
-↓
-Audit
-↓
-Production
-```
-
-Performance MUST NOT be treated only as a final optimization step.
+- Fast initial page load
+- Fast navigation
+- Low bandwidth usage
+- Excellent mobile performance
+- Efficient database access
+- Optimized images
+- Minimal JavaScript
+- Low hosting resource usage
+- Reliable performance on shared Linux hosting
 
 ---
 
-# 2. Source of Truth
+## 2. Source of Truth
 
-Performance decisions MUST follow:
+`PROJECT_SPEC.md` is the primary source of truth.
 
-1. `PROJECT_SPEC.md`
-2. `PERFORMANCE_RULES.md`
-3. `ARCHITECTURE.md`
-4. `UX_RULES.md`
-5. `DESIGN_SYSTEM.md`
-6. Feature requirements
-7. Existing verified implementation
+Performance decisions must remain consistent with:
 
-Performance optimization MUST NOT violate security, accessibility, UX, or data integrity requirements.
+- `PROJECT_SPEC.md`
+- `DESIGN_SYSTEM.md`
+- `UX_RULES.md`
+- `DATABASE_RULES.md`
+- `DEPLOYMENT_RULES.md`
 
----
-
-# 3. Performance Principles
-
-The application MUST aim for:
-
-* fast initial loading
-* responsive interaction
-* stable layout
-* efficient network usage
-* efficient rendering
-* efficient database access
-* predictable resource usage
-* graceful behavior on slow devices and networks
-
-Do not optimize for benchmark numbers while degrading real user experience.
+Do not introduce infrastructure or technologies that are unnecessary for the project.
 
 ---
 
-# 4. Performance Budget
+## 3. Performance Priority
 
-Projects SHOULD define measurable budgets where appropriate.
+Performance priorities for PONT CAFE are:
 
-Examples:
-
-| Area               | Budget     |
-| ------------------ | ---------- |
-| Initial JavaScript | `[TARGET]` |
-| Critical CSS       | `[TARGET]` |
-| Image payload      | `[TARGET]` |
-| API response       | `[TARGET]` |
-| Initial page load  | `[TARGET]` |
-| Database reads     | `[TARGET]` |
-
-If a project has no explicit budget, AI MUST avoid unnecessary resource growth and SHOULD establish budgets for critical areas.
+1. Fast first page load
+2. Fast menu navigation
+3. Fast product list rendering
+4. Fast product detail loading
+5. Optimized images
+6. Efficient database queries
+7. Minimal client-side JavaScript
+8. Low server resource usage
 
 ---
 
-# 5. Core Web Vitals
+## 4. Server-Side Rendering
 
-For public web experiences, AI SHOULD monitor relevant Core Web Vitals:
+The customer menu should primarily use Laravel + Blade server-side rendering.
 
-* Largest Contentful Paint (LCP)
-* Interaction to Next Paint (INP)
-* Cumulative Layout Shift (CLS)
+Preferred architecture:
 
-Where applicable, measurements SHOULD be evaluated using real-user data in addition to synthetic testing.
-
-Passing one synthetic Lighthouse run MUST NOT be treated as proof of production performance.
-
----
-
-# 6. Rendering Performance
-
-AI MUST avoid unnecessary rendering work.
-
-For React applications:
-
-* keep components appropriately scoped
-* avoid unnecessary state updates
-* avoid unnecessary parent re-renders
-* keep derived state derived
-* avoid premature memoization
-* use memoization only when it provides measurable or clearly justified value
-* avoid expensive calculations during render
-* avoid unstable patterns that cause repeated work
-
-React performance techniques MUST NOT make code unnecessarily complex.
-
----
-
-# 7. Component Performance
-
-Components MUST:
-
-* render only required content
-* avoid unnecessary effects
-* avoid expensive work on every render
-* avoid duplicated data fetching
-* clean up subscriptions and listeners
-* avoid unnecessary DOM complexity
-
-Large components SHOULD be decomposed when decomposition improves maintainability or rendering behavior.
-
----
-
-# 8. JavaScript
-
-AI MUST minimize unnecessary JavaScript.
-
-Avoid:
-
-* large unnecessary dependencies
-* duplicate libraries
-* client-side processing that can be performed more efficiently elsewhere
-* loading entire libraries for small utilities
-* unnecessary polyfills
-* unnecessary global scripts
-
-Dependencies MUST have a clear purpose.
-
----
-
-# 9. Code Splitting
-
-Large applications SHOULD use appropriate code splitting.
-
-Potential candidates include:
-
-* routes
-* large feature modules
-* admin areas
-* heavy editors
-* charts
-* maps
-* AI interfaces
-* rarely used workflows
-
-Code splitting MUST NOT cause poor navigation or excessive loading waterfalls.
-
----
-
-# 10. Lazy Loading
-
-Non-critical resources SHOULD be loaded only when needed.
-
-Potential candidates:
-
-* below-the-fold images
-* heavy components
-* large charts
-* maps
-* secondary dialogs
-* optional integrations
-
-Critical content MUST NOT be unnecessarily lazy-loaded.
-
----
-
-# 11. Images
-
-Images MUST be optimized.
-
-Where applicable:
-
-* use appropriate formats
-* provide appropriate dimensions
-* avoid unnecessarily large source images
-* use responsive image delivery
-* define dimensions to reduce layout shift
-* lazy-load non-critical images
-* prioritize critical visual content
-
-Do not use oversized images when smaller assets provide equivalent visual quality.
-
----
-
-# 12. Fonts
-
-Font loading MUST be intentional.
-
-AI SHOULD:
-
-* minimize font variants
-* load only required weights
-* avoid unnecessary font families
-* prevent avoidable rendering delays
-* use appropriate fallback behavior
-
-Typography MUST remain consistent with `DESIGN_SYSTEM.md`.
-
----
-
-# 13. Network Requests
-
-AI MUST minimize unnecessary network requests.
-
-Avoid:
-
-* duplicate requests
-* sequential requests that could safely run in parallel
-* unnecessary polling
-* fetching data that is not required
-* repeated requests caused by incorrect effect dependencies
-
-Requests SHOULD be:
-
-* cancellable where appropriate
-* cacheable where appropriate
-* retried only when justified
-* bounded in size
-
----
-
-# 14. Data Fetching
-
-Data fetching MUST be driven by actual Feature requirements.
-
-AI MUST NOT fetch:
-
-* entire collections when a subset is required
-* unnecessary fields
-* unnecessary related entities
-* unbounded result sets
-
-Pagination, filtering, and selective field retrieval SHOULD be used where appropriate.
-
----
-
-# 15. API Performance
-
-API endpoints SHOULD:
-
-* return only required data
-* use pagination for large collections
-* avoid unnecessary database queries
-* avoid N+1 query patterns
-* use appropriate caching
-* enforce reasonable request and response limits
-* avoid expensive operations on every request
-
-API performance MUST NOT bypass authorization or validation.
-
----
-
-# 16. Database Performance
-
-Database operations MUST follow `DATABASE_RULES.md`.
-
-AI MUST consider:
-
-* query patterns
-* indexes
-* document size
-* read amplification
-* write amplification
-* transaction scope
-* hot documents
-* high-frequency updates
-* pagination
-* realtime listeners
-
-For Firestore, avoid unnecessary broad collection reads and uncontrolled realtime listeners.
-
-Performance optimization MUST NOT weaken database security.
-
----
-
-# 17. Firestore Read/Write Efficiency
-
-When Firestore is used, AI MUST evaluate:
-
-* number of document reads
-* number of writes
-* listener frequency
-* query selectivity
-* pagination
-* index requirements
-* transaction retries
-* duplicated data
-
-Frequently rendered UI MUST NOT independently create duplicate realtime listeners for the same data without justification.
-
----
-
-# 18. Caching
-
-Caching SHOULD be used where it provides clear value.
-
-Potential layers:
-
-```text id="p002"
+```text
 Browser
-↓
-Application
-↓
-API
-↓
-Database / External Service
-```
+   ↓
+Web Server
+   ↓
+Laravel
+   ↓
+Database
+   ↓
+Blade
+   ↓
+HTML Response
+````
 
-Cached data MUST have an explicit invalidation or freshness strategy.
-
-Sensitive or user-specific data MUST NOT be incorrectly shared through caches.
+Do not build a JavaScript SPA for the menu.
 
 ---
 
-# 19. Search & Filtering
+## 5. Minimize JavaScript
 
-Search and filtering MUST avoid unnecessary full-data downloads.
+JavaScript should only be used when it provides meaningful functionality.
 
 Prefer:
 
-* server-side filtering for large datasets
-* indexed queries
-* pagination
-* bounded results
-* debounced user input where appropriate
+* HTML
+* CSS
+* Blade
+* Alpine.js
 
-Do not debounce actions that should respond immediately unless justified.
+for simple interactions.
 
----
-
-# 20. Lists & Large Data
-
-Large lists MUST NOT render unlimited items simultaneously.
-
-Where appropriate, use:
-
-* pagination
-* cursor pagination
-* virtualization
-* progressive loading
-* server-side filtering
-
-Virtualization SHOULD only be introduced when the data size justifies its complexity.
+Do not add JavaScript libraries for functionality that can be handled by standard HTML/CSS or Laravel.
 
 ---
 
-# 21. Mobile Performance
-
-Mobile performance is a first-class requirement.
-
-Test relevant Features on:
-
-* constrained CPU
-* constrained memory
-* slow network
-* small viewport
-* touch interaction
-
-Mobile MUST NOT simply receive a reduced desktop experience.
-
-Performance optimizations MUST preserve the mobile UX defined in `UX_RULES.md`.
-
----
-
-# 22. Loading States
-
-Every asynchronous Feature MUST define appropriate:
-
-* loading state
-* success state
-* empty state
-* error state
-
-Loading UI MUST avoid unnecessary layout shifts.
-
-Skeletons MAY be used where they improve perceived continuity.
-
-Do not use artificial delays to simulate loading.
-
----
-
-# 23. Layout Stability
-
-AI MUST minimize unexpected layout movement.
-
-Consider:
-
-* image dimensions
-* font loading
-* dynamic content
-* banners
-* advertisements where applicable
-* async components
-* error messages
-* loading states
-
-Important content MUST NOT unexpectedly jump during loading.
-
----
-
-# 24. Background Work
-
-Expensive work SHOULD NOT block critical user interactions.
-
-Where appropriate:
-
-* move expensive processing server-side
-* use background jobs
-* defer non-critical work
-* use Web Workers only when justified
-
-Do not introduce background infrastructure solely for theoretical optimization.
-
----
-
-# 25. Third-Party Services
-
-Third-party resources MUST be evaluated for:
-
-* network cost
-* JavaScript size
-* loading behavior
-* privacy implications
-* reliability
-* failure impact
-
-Third-party scripts SHOULD NOT block critical rendering unless required.
-
-A third-party service failure MUST NOT unnecessarily break unrelated application functionality.
-
----
-
-# 26. Performance & Accessibility
-
-Performance optimization MUST NOT:
-
-* remove keyboard support
-* reduce readable text
-* remove accessible labels
-* disable focus states
-* remove semantic structure
-* create inaccessible loading states
-* sacrifice WCAG requirements
-
-Accessibility remains governed by `UX_RULES.md` and `TESTING_RULES.md`.
-
----
-
-# 27. Performance & SEO
-
-For public pages, performance MUST be evaluated together with:
-
-* rendering strategy
-* crawlability
-* content availability
-* image optimization
-* layout stability
-
-SEO requirements remain governed by `SEO_RULES.md`.
-
----
-
-# 28. Memory & Resource Management
-
-AI MUST prevent avoidable resource leaks.
-
-Review:
-
-* event listeners
-* subscriptions
-* timers
-* observers
-* realtime listeners
-* WebSockets
-* media resources
-* large in-memory datasets
-
-Resources MUST be released when no longer required.
-
----
-
-# 29. Performance Monitoring
-
-Production systems SHOULD monitor relevant signals such as:
-
-* response latency
-* error rate
-* request volume
-* database usage
-* resource usage
-* client performance
-* Core Web Vitals where applicable
-
-Observability requirements remain governed by `OBSERVABILITY_RULES.md`.
-
----
-
-# 30. Performance Testing
-
-Relevant Features SHOULD be tested for:
-
-* initial load
-* route transitions
-* API latency
-* database access
-* large datasets
-* slow network
-* slow devices
-* repeated interactions
-* memory leaks
-* rendering performance
-
-Performance testing MUST use realistic data volumes where practical.
-
-A Feature MUST NOT be declared performant solely because it works with a tiny development dataset.
-
----
-
-# 31. Regression Protection
-
-Performance changes SHOULD be compared against a known baseline when practical.
-
-AI MUST investigate meaningful regressions.
-
-Do not accept significant performance degradation merely because functionality still works.
-
----
-
-# 32. AI Prohibitions
-
-AI MUST NOT:
-
-* add random memoization everywhere
-* add arbitrary caching
-* introduce unnecessary state-management libraries
-* add unnecessary dependencies
-* lazy-load everything
-* virtualize every list
-* introduce complex infrastructure without justification
-* optimize only for Lighthouse
-* remove UX/accessibility features for speed
-* hide performance problems with artificial delays
-* use fake/mock data to demonstrate performance
-* claim performance completion without verification
-
----
-
-# 33. Performance Workflow
-
-For performance-sensitive Features:
-
-```text id="p003"
-Identify
-↓
-Measure / Establish Baseline
-↓
-Find Bottleneck
-↓
-Plan
-↓
-Implement
-↓
-Measure Again
-↓
-Regression Check
-↓
-Audit
+## 6. No Unnecessary API Requests
+
+Do not create API requests for information that can be rendered directly by Blade.
+
+Avoid patterns such as:
+
+```text
+Page loads
+    ↓
+JavaScript request
+    ↓
+API
+    ↓
+Database
+    ↓
+Render menu
 ```
 
-AI MUST optimize based on evidence whenever practical.
+when the same data can be rendered directly by Laravel.
+
+Preferred:
+
+```text
+Request
+    ↓
+Laravel
+    ↓
+Database
+    ↓
+Blade
+    ↓
+HTML
+```
 
 ---
 
-# 34. Completion Gate
+## 7. Database Query Efficiency
 
-A performance-relevant Feature is complete only when:
+Every database query should have a clear purpose.
 
-* performance impact is identified
-* relevant budgets are considered
-* unnecessary work is removed
-* network usage is reasonable
-* database usage is reasonable
-* mobile performance is considered
-* loading/error states are stable
-* accessibility is preserved
-* relevant performance tests pass
-* significant regressions are resolved
-* performance claims are supported by evidence
+Avoid:
 
-Final status:
+* Repeated identical queries
+* Queries inside Blade loops
+* Loading unnecessary columns
+* Loading unnecessary relationships
+* Unbounded large queries
 
-```text id="p004"
-Performance Status: PASS
-Feature: [FEATURE_ID]
-Baseline: [STATUS]
-Network: [STATUS]
-Rendering: [STATUS]
-Database: [STATUS]
-Mobile: [STATUS]
-Accessibility: [STATUS]
-Regression: [STATUS]
-Audit: PASS
+---
+
+## 8. Prevent N+1 Queries
+
+Avoid N+1 query problems.
+
+When related data is required, use eager loading.
+
+Example:
+
+```php
+Product::with([
+    'translations',
+    'images',
+])->get();
+```
+
+Do not repeatedly query relationships inside a loop.
+
+---
+
+## 9. Select Only Required Data
+
+When appropriate, retrieve only the columns needed by the current operation.
+
+Example:
+
+```php
+Product::select([
+    'id',
+    'category_id',
+    'slug',
+    'price',
+    'is_active',
+    'is_sold_out',
+])->get();
+```
+
+Do not optimize every query prematurely.
+
+Use selective columns when it provides a real benefit.
+
+---
+
+## 10. Pagination
+
+Use pagination for potentially large administrative lists.
+
+Examples:
+
+* Admin products
+* Admin categories when necessary
+* Media management
+* Large datasets
+
+The public menu contains a small, controlled number of products and does not require pagination unless actual content size makes it necessary.
+
+---
+
+## 11. Public Menu Size
+
+PONT CAFE V1 is expected to contain approximately 100 products.
+
+The architecture should handle this size efficiently without introducing unnecessary infrastructure.
+
+Do not build complex data-loading systems for a small menu.
+
+---
+
+## 12. Image Performance
+
+Images are one of the most important performance considerations for the menu.
+
+Product images must be optimized before or during upload.
+
+Preferred format:
+
+```text
+WebP
+```
+
+Images should use appropriate dimensions and compression.
+
+Do not serve unnecessarily large original images to mobile devices.
+
+---
+
+## 13. Image Dimensions
+
+Images should be sized according to their actual display area.
+
+Do not upload a very large image when a smaller image is sufficient.
+
+Example:
+
+If a product card displays an image at approximately 400px wide, do not serve a multi-megapixel image unnecessarily.
+
+---
+
+## 14. Responsive Images
+
+Where appropriate, use responsive image techniques such as:
+
+```html
+srcset
+sizes
+```
+
+to serve suitable image sizes.
+
+Do not implement complex image processing if the actual hosting environment or project size does not require it.
+
+---
+
+## 15. Lazy Loading Images
+
+Images below the initial viewport should generally use lazy loading.
+
+Example:
+
+```html
+<img
+    src="..."
+    loading="lazy"
+    alt="..."
+>
+```
+
+The primary above-the-fold image should not be unnecessarily lazy-loaded.
+
+---
+
+## 16. Image Alt Text
+
+Images must have meaningful alt text where appropriate.
+
+Decorative images may use an empty alt attribute.
+
+Do not use meaningless alt text such as:
+
+```text
+image
+photo
+product image
+```
+
+when the actual product name is available.
+
+---
+
+## 17. Image Upload Processing
+
+Admin image uploads should be validated and optimized.
+
+Where practical:
+
+* Validate MIME type
+* Validate file size
+* Resize oversized images
+* Convert to WebP
+* Generate secure filenames
+* Remove unnecessary metadata when appropriate
+
+---
+
+## 18. CSS Performance
+
+Keep CSS focused and reusable.
+
+Avoid:
+
+* Large duplicated CSS files
+* Unused frameworks
+* Repeated custom styles
+* Excessive one-off rules
+
+Tailwind CSS should be built for production so unused styles are removed where supported by the build process.
+
+---
+
+## 19. JavaScript Bundle Size
+
+Keep the production JavaScript bundle small.
+
+Do not add large libraries for small interactions.
+
+Examples of interactions that should normally remain lightweight:
+
+* Mobile navigation
+* Simple tabs
+* Small dropdowns
+* Language switching UI
+* Simple state changes
+
+---
+
+## 20. Vite Production Build
+
+Production assets must be built using the production Vite build.
+
+Typical command:
+
+```bash
+npm run build
+```
+
+Do not deploy development assets as the production bundle.
+
+---
+
+## 21. Browser Caching
+
+Static assets should be cacheable where appropriate.
+
+Examples:
+
+* CSS
+* JavaScript
+* Fonts
+* Product images
+
+Use cache-friendly asset filenames generated by the build system when appropriate.
+
+---
+
+## 22. Laravel Cache
+
+Use Laravel caching when it provides a real performance benefit.
+
+Good candidates may include:
+
+* Categories
+* Public menu configuration
+* Service hours
+* Stable public menu data
+
+Cache must be invalidated when the underlying data changes.
+
+---
+
+## 23. Cache Strategy
+
+Do not cache everything.
+
+Caching should not create:
+
+* Stale menu data
+* Incorrect availability
+* Incorrect prices
+* Incorrect product status
+
+Dynamic information must remain accurate.
+
+---
+
+## 24. Availability Accuracy
+
+Performance optimization must never make availability incorrect.
+
+The following states must remain accurate:
+
+```text
+Available
+Sold Out
+Outside Service Hours
+```
+
+Do not serve stale availability data merely to improve performance.
+
+---
+
+## 25. Price Accuracy
+
+Prices must always come from the authoritative database state.
+
+Do not rely on long-lived cached prices that may become outdated after an Admin update.
+
+---
+
+## 26. Database Indexes
+
+Important query fields should have appropriate indexes.
+
+Likely candidates include:
+
+```text
+categories.slug
+categories.parent_id
+categories.is_active
+
+products.category_id
+products.slug
+products.is_active
+products.sort_order
+
+product_translations.product_id
+product_translations.locale
+
+category_translations.category_id
+category_translations.locale
+```
+
+Indexes must be based on actual query patterns and schema requirements.
+
+Do not create excessive indexes.
+
+---
+
+## 27. Slug Queries
+
+Public product and category routes should use indexed slug fields.
+
+Example:
+
+```text
+/menu/product/{slug}
+```
+
+Slug lookups should be efficient.
+
+---
+
+## 28. Eloquent Optimization
+
+Use appropriate Eloquent features:
+
+* Eager loading
+* Scopes
+* Selective columns
+* Pagination
+* Query constraints
+
+Do not bypass Eloquent with raw SQL unless there is a clear technical reason.
+
+---
+
+## 29. Avoid Queries in Views
+
+Blade views must not execute database queries.
+
+Bad:
+
+```blade
+@foreach(DB::table('products')->get() as $product)
+```
+
+Preferred:
+
+```text
+Controller
+    ↓
+Service / Model
+    ↓
+Blade
+```
+
+---
+
+## 30. Avoid Repeated Computation
+
+Do not repeatedly perform expensive calculations during rendering.
+
+If a value can be calculated once before rendering, prefer doing so.
+
+This is especially important for:
+
+* Availability
+* Translation selection
+* Image selection
+* Category hierarchy
+
+---
+
+## 31. Translation Performance
+
+Localization must not cause unnecessary database queries.
+
+For a product list, load the required translations efficiently.
+
+Avoid querying translations separately for every product.
+
+---
+
+## 32. Language Handling
+
+The active locale should be determined once per request.
+
+Do not repeatedly calculate locale selection inside loops.
+
+Supported locales:
+
+```text
+fa
+ar
+en
+```
+
+---
+
+## 33. Font Performance
+
+Fonts should be loaded efficiently.
+
+The project uses:
+
+```text
+IranYekan
+```
+
+for Persian and Arabic.
+
+Avoid loading unnecessary font weights.
+
+Only required weights should be included.
+
+---
+
+## 34. Font Loading
+
+Fonts should not unnecessarily block page rendering.
+
+Use appropriate font loading strategies supported by the application.
+
+Do not load multiple large font families when they are not required.
+
+---
+
+## 35. Above-the-Fold Content
+
+The first viewport should load quickly.
+
+Prioritize:
+
+* Logo
+* Primary navigation
+* Main category choices
+* First visible menu content
+
+Do not load large amounts of below-the-fold content before the initial view can render.
+
+---
+
+## 36. Navigation Performance
+
+Navigation between menu sections should feel immediate.
+
+Prefer normal Laravel page navigation for the V1 architecture.
+
+Do not add SPA navigation libraries only to make page changes appear faster.
+
+Use proper caching and optimized server rendering first.
+
+---
+
+## 37. Loading Animation
+
+The PONT CAFE loading animation should only appear when the application is genuinely waiting for an operation.
+
+Do not show a loading animation unnecessarily between normal server-rendered pages.
+
+The loading animation must remain subtle and short.
+
+---
+
+## 38. Perceived Performance
+
+Performance is not only about server response time.
+
+The interface should feel fast through:
+
+* Immediate visual feedback
+* Stable layouts
+* Correct image dimensions
+* No unnecessary spinners
+* No layout jumps
+* Lightweight interactions
+
+---
+
+## 39. Avoid Layout Shift
+
+Reserve appropriate space for images and major UI elements.
+
+Images should have predictable dimensions.
+
+Avoid content unexpectedly moving after page load.
+
+---
+
+## 40. Mobile Performance
+
+Mobile performance is a primary requirement.
+
+The application should work well on:
+
+```text
+320px
+360px
+375px
+390px
+414px
+```
+
+and common tablet/desktop widths.
+
+Do not assume high-speed desktop internet.
+
+---
+
+## 41. Low Bandwidth
+
+The menu should remain usable on slower mobile connections.
+
+Prioritize:
+
+* Small image sizes
+* Minimal JavaScript
+* Optimized CSS
+* Browser caching
+* Server-side rendering
+* No unnecessary third-party requests
+
+---
+
+## 42. Third-Party Resources
+
+Minimize external dependencies.
+
+Avoid unnecessary:
+
+* External fonts
+* Analytics scripts
+* Tracking scripts
+* JavaScript CDNs
+* External UI libraries
+* External image services
+
+Core menu functionality must not depend on third-party resources.
+
+---
+
+## 43. External Service Failure
+
+The customer menu should remain functional if an optional external service becomes unavailable.
+
+Core functionality must depend only on:
+
+```text
+Laravel
+PHP
+MySQL/MariaDB
+Local application assets
+Local product images
+```
+
+---
+
+## 44. Hosting Resource Usage
+
+The application must be efficient enough for standard Linux shared/cloud hosting.
+
+Avoid unnecessary:
+
+* Long-running processes
+* Workers
+* Queues
+* Redis
+* Elasticsearch
+* Multiple application servers
+
+unless actual requirements justify them.
+
+---
+
+## 45. Memory Usage
+
+Avoid loading unnecessary large datasets into memory.
+
+For administrative operations involving potentially large datasets, use:
+
+* Pagination
+* Chunking
+* Lazy collections
+
+where appropriate.
+
+---
+
+## 46. Admin Performance
+
+The Admin panel should remain responsive without compromising the existing design.
+
+Admin lists should use:
+
+* Pagination when necessary
+* Efficient queries
+* Eager loading
+* Search/filter only when useful
+* Optimized images
+
+Do not load the entire database into the Admin UI.
+
+---
+
+## 47. Product List Performance
+
+The public product list should load only the information needed to display:
+
+* Product image
+* Product name
+* Product price
+* Availability state
+
+Do not load unnecessary product metadata.
+
+---
+
+## 48. Product Detail Performance
+
+The product detail page should load:
+
+* Main product image
+* Product name
+* Description
+* Ingredients when available
+* Allergens when available
+* Price
+* Availability
+
+Do not load unrelated products or administrative information.
+
+---
+
+## 49. Error and Performance Balance
+
+Error handling must not create excessive overhead.
+
+Do not perform multiple fallback queries for every request.
+
+Use clear failure paths and appropriate defaults.
+
+---
+
+## 50. Performance Testing
+
+Before production release, test:
+
+* Homepage
+* Category pages
+* Product lists
+* Product detail
+* Language switching
+* Admin product list
+* Admin product editor
+* Image upload
+* Mobile layouts
+
+Check both network behavior and server-side behavior.
+
+---
+
+## 51. Query Monitoring
+
+During development and performance audits, inspect database query counts for important pages.
+
+Pay particular attention to:
+
+* Product lists
+* Category pages
+* Translation loading
+* Image loading
+* Admin lists
+
+Fix unnecessary queries before production.
+
+---
+
+## 52. Production Optimization
+
+Production should use appropriate Laravel optimizations.
+
+Typical commands include:
+
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+Only use caching commands that are compatible with the application's configuration and deployment process.
+
+---
+
+## 53. OPcache
+
+PHP OPcache should be enabled when supported by the hosting environment.
+
+This can improve PHP execution performance without requiring additional application infrastructure.
+
+---
+
+## 54. No Premature Optimization
+
+Do not complicate the codebase for theoretical performance problems.
+
+First prefer:
+
+* Correct database queries
+* Proper indexes
+* Efficient rendering
+* Image optimization
+* Minimal JavaScript
+* Appropriate caching
+
+Introduce more advanced optimization only when actual performance requirements justify it.
+
+---
+
+## 55. Performance Regression
+
+A feature must not introduce a significant performance regression without a clear reason.
+
+Before adding a large dependency or complex client-side behavior, consider its impact on:
+
+* Bundle size
+* Network requests
+* Server memory
+* Database queries
+* Mobile performance
+
+---
+
+## 56. Performance and UX
+
+Performance optimization must not break the approved UX.
+
+Do not remove:
+
+* Required states
+* Accessibility
+* Useful navigation
+* Product information
+* Availability indicators
+
+simply to reduce implementation complexity.
+
+---
+
+## 57. Scope Protection
+
+PONT CAFE V1 is a small digital menu.
+
+Do not introduce complex performance infrastructure designed for large-scale applications.
+
+The expected scale does not justify:
+
+* Microservices
+* Kubernetes
+* CDN architecture
+* Redis clusters
+* Elasticsearch
+* Dedicated queue infrastructure
+
+unless future requirements clearly justify them.
+
+---
+
+## 58. Performance Checklist
+
+Before production:
+
+```text
+[ ] Server-side rendering used for primary menu pages
+[ ] No unnecessary API requests
+[ ] No unnecessary JavaScript
+[ ] No N+1 queries
+[ ] Required database indexes exist
+[ ] Images optimized
+[ ] WebP used where appropriate
+[ ] Images use appropriate dimensions
+[ ] Lazy loading used for below-the-fold images
+[ ] Fonts optimized
+[ ] Production assets built
+[ ] Browser caching configured
+[ ] Laravel caching configured where useful
+[ ] Availability remains accurate
+[ ] Prices remain accurate
+[ ] No unnecessary third-party dependencies
+[ ] Mobile performance checked
+[ ] No significant layout shift
+[ ] Production optimization enabled
+[ ] No unnecessary infrastructure introduced
+```
+
+---
+
+## 59. Final Rule
+
+The performance principle for PONT CAFE is:
+
+> Make the simplest architecture fast before introducing complex optimization infrastructure.
+
+Prioritize:
+
+```text
+Server-rendered Laravel
+        +
+Efficient MySQL queries
+        +
+Optimized images
+        +
+Minimal JavaScript
+        +
+Browser caching
+        +
+Appropriate Laravel caching
+```
+
+The menu should feel fast, lightweight, and reliable on mobile devices and modest hosting resources.
+
+Do not sacrifice correctness, security, accessibility, or UX merely for performance.
+
+```
+
+
+بعدی: **`UX_RULES.md`** — این یکی مهم‌تره چون قوانین UX اختصاصی PONT CAFE را داخلش تثبیت می‌کنیم.
 ```
