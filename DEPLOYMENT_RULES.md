@@ -1,662 +1,964 @@
-# Deployment Rules
+
+# DEPLOYMENT RULES — PONT CAFE
+
+Version: 1.0
+Status: Active
+Project: PONT CAFE Digital Menu
+
+---
 
 ## 1. Purpose
 
-This document defines mandatory rules for building, deploying, releasing, monitoring, and rolling back the application across environments.
+This document defines the deployment standards for PONT CAFE.
 
-Deployment MUST be treated as a controlled engineering process.
+The deployment must be:
 
-A successful local build MUST NOT be considered proof of production readiness.
-
----
-
-# 2. Deployment Principles
-
-Production deployment MUST be:
-
-* reproducible
-* traceable
-* reviewable
-* secure
-* reversible where practical
-* environment-aware
-* tested
-* observable
-
-No deployment should depend on undocumented manual steps.
+- Production-ready
+- Simple
+- Low-cost
+- Reliable
+- Secure
+- Compatible with the selected hosting environment
+- Easy to maintain
+- Appropriate for a small digital menu application
 
 ---
 
-# 3. Environment Model
+## 2. Source of Truth
 
-Projects SHOULD separate environments:
+`PROJECT_SPEC.md` is the primary source of truth for deployment decisions.
 
-```text id="d001"
-Local
-↓
-Development
-↓
-Preview / Staging
-↓
-Production
-```
-
-The exact environment model MAY differ by project.
-
-The environment strategy MUST be documented in `PROJECT_SPEC.md`.
+If this document conflicts with `PROJECT_SPEC.md`, the project specification takes priority.
 
 ---
 
-# 4. Environment Isolation
+## 3. Production Stack
 
-Development and staging MUST NOT accidentally modify production resources.
+The production application uses:
 
-Verify separation of:
+- Laravel
+- PHP 8.3+
+- MySQL or MariaDB
+- Blade
+- Tailwind CSS
+- Vite-built assets
+- Linux hosting
 
-* databases
-* Firebase projects
-* Storage
-* authentication
-* API credentials
-* third-party services
-* analytics
-* payment providers
-* domains
-* environment variables
+The production application does not require Node.js as a runtime service.
 
-Production credentials MUST NOT be used casually in local development.
+Node.js/npm may be used during development or asset compilation.
 
 ---
 
-# 5. Configuration
+## 4. Hosting Strategy
 
-Configuration MUST be environment-specific.
+PONT CAFE should use a Linux hosting environment that supports:
 
-Separate:
+- PHP 8.3+
+- Laravel
+- MySQL/MariaDB
+- HTTPS
+- Cron jobs when required
+- File storage
+- PHP extensions required by Laravel
 
-```text id="d002"
-Application Configuration
-Secrets
-Infrastructure Configuration
-Feature Flags
-```
+An Iran-based hosting provider is preferred for the production deployment when available and technically suitable.
 
-Configuration MUST NOT be scattered throughout source code.
-
----
-
-# 6. Secrets
-
-Secrets MUST NEVER be committed to the repository.
-
-Examples:
-
-* API keys
-* service-account credentials
-* private tokens
-* database credentials
-* payment secrets
-* signing keys
-* webhook secrets
-
-Secrets MUST be provided through secure environment or secret-management systems.
-
-Client-exposed configuration MUST be explicitly classified as public.
+The application must not depend on foreign cloud infrastructure for core operation unless explicitly approved.
 
 ---
 
-# 7. Build Requirements
+## 5. No Firebase Dependency
 
-Production builds MUST verify:
+Firebase is not part of the production architecture.
 
-* dependency installation
-* type checking
-* linting
-* tests
-* required integration tests
-* security checks
-* production build
-* required environment configuration
+Do not introduce dependencies on:
 
-A production build MUST fail when critical checks fail.
+- Firebase Authentication
+- Firestore
+- Firebase Storage
+- Firebase Hosting
+- Firebase Functions
 
----
-
-# 8. CI/CD
-
-Where CI/CD is configured, the pipeline SHOULD automatically verify:
-
-```text id="d003"
-Install
-↓
-Typecheck
-↓
-Lint
-↓
-Unit Tests
-↓
-Integration / Contract Tests
-↓
-Security Checks
-↓
-Build
-↓
-Deploy
-↓
-Smoke Test
-```
-
-Deployment MUST NOT bypass required quality gates.
+The application must remain fully functional using the Laravel + MySQL architecture.
 
 ---
 
-# 9. Pull Requests
+## 6. No External Database Dependency
 
-Production-bound changes SHOULD pass CI before merge.
+The production database must be hosted within the selected infrastructure.
 
-CI SHOULD verify at minimum:
+Do not make the application dependent on an external cloud database for normal operation.
 
-* typecheck
-* lint
-* tests
-* build
-
-Additional checks MUST be added when required by the project.
+Primary application data must be stored in MySQL/MariaDB.
 
 ---
 
-# 10. Branching
+## 7. No External Image Storage Dependency
 
-The project MUST define a clear branching strategy.
+Product images should be stored on the selected hosting infrastructure.
+
+Do not require:
+
+- Firebase Storage
+- Cloudinary
+- S3
+- External image CDN
+
+for normal V1 operation.
+
+External image services may only be introduced later if there is a clear requirement and approval.
+
+---
+
+## 8. Laravel Document Root
+
+The web server must point to Laravel's:
+
+```text
+public/
+````
+
+directory.
+
+The application root must not be exposed directly as the public document root.
 
 Example:
 
-```text id="d004"
-main
-  ↓
-feature/*
-  ↓
-Pull Request
-  ↓
-CI
-  ↓
-Review
-  ↓
-main
-  ↓
-Production Deployment
+```text
+/home/account/project/
+    app/
+    bootstrap/
+    config/
+    database/
+    resources/
+    routes/
+    storage/
+    vendor/
+    public/
 ```
 
-The exact strategy MAY differ.
+The web server should serve:
 
-AI MUST NOT create a new branching model without justification.
-
----
-
-# 11. Release Strategy
-
-The project MUST define how releases are identified.
-
-Possible strategies:
-
-* semantic versioning
-* release tags
-* deployment commit
-* platform release identifier
-
-Every production deployment SHOULD be traceable to a specific source revision.
-
----
-
-# 12. Database Changes
-
-Database changes MUST be deployment-aware.
-
-Before deployment:
-
-1. identify schema/data changes
-2. evaluate backward compatibility
-3. define migration strategy
-4. define rollback implications
-5. test migration
-6. verify production safety
-
-For Firestore, schema evolution MUST consider existing documents and old application versions.
-
----
-
-# 13. Migration Safety
-
-Migrations SHOULD follow:
-
-```text id="d005"
-Backward-Compatible Change
-↓
-Deploy Compatible Application
-↓
-Migrate Data
-↓
-Enable New Behavior
-↓
-Remove Legacy Behavior Later
+```text
+/home/account/project/public
 ```
 
-Avoid destructive migrations when an additive migration can safely achieve the same result.
+---
+
+## 9. Environment Configuration
+
+Production configuration must be provided through environment variables.
+
+Never commit production secrets to Git.
+
+Important environment values include:
+
+```text
+APP_ENV
+APP_KEY
+APP_DEBUG
+APP_URL
+
+DB_CONNECTION
+DB_HOST
+DB_PORT
+DB_DATABASE
+DB_USERNAME
+DB_PASSWORD
+```
 
 ---
 
-# 14. Firebase Deployment
+## 10. APP_ENV
 
-When Firebase is used, verify applicable:
+Production must use:
 
-* Firebase project
-* environment
-* Authentication configuration
-* Firestore configuration
-* Security Rules
-* Storage Rules
-* indexes
-* Functions
-* Hosting/App Hosting
-* secrets
-* environment variables
+```env
+APP_ENV=production
+```
 
-Deployment MUST NOT silently target the wrong Firebase project.
+Do not deploy with:
+
+```env
+APP_ENV=local
+```
 
 ---
 
-# 15. Infrastructure Changes
+## 11. APP_DEBUG
 
-Infrastructure changes MUST be reviewed for:
+Production must use:
 
-* security
-* cost
-* availability
-* scalability
-* rollback
-* environment isolation
+```env
+APP_DEBUG=false
+```
 
-Examples:
-
-* domains
-* DNS
-* hosting
-* server configuration
-* Firebase configuration
-* Cloud Run
-* storage
-* IAM
-* service accounts
-
-AI MUST NOT make high-impact production infrastructure changes silently.
+Never expose Laravel debug pages to public users.
 
 ---
 
-# 16. Deployment Order
+## 12. Application Key
 
-When multiple systems must be deployed, define a safe order.
+Production must have a valid Laravel `APP_KEY`.
+
+Do not expose the application key.
+
+Do not randomly regenerate the production application key during normal deployments.
+
+Changing the production key can invalidate encrypted application data.
+
+---
+
+## 13. Database Configuration
+
+The production application must use the real MySQL/MariaDB database.
 
 Example:
 
-```text id="d006"
-Infrastructure
-↓
-Database-Compatible Changes
-↓
-Backend
-↓
-API
-↓
-Frontend
-↓
-Data Migration
-↓
-Feature Activation
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=pont_cafe
+DB_USERNAME=...
+DB_PASSWORD=...
 ```
 
-The actual order MUST follow project dependencies.
+Actual credentials must remain private.
 
 ---
 
-# 17. Health Checks
+## 14. Database Migrations
 
-Production services SHOULD expose appropriate health checks where supported.
+Database changes must be implemented through Laravel migrations.
 
-Health checks MUST distinguish between:
+Before production deployment:
 
-```text id="d007"
-Process Is Running
-```
+1. Review pending migrations.
+2. Verify compatibility.
+3. Back up the database when appropriate.
+4. Run migrations safely.
 
-and:
-
-```text id="d008"
-Application Is Healthy
-```
-
-A service that starts successfully but cannot access required dependencies MUST NOT be considered fully healthy.
+Do not manually change the production schema without documenting the corresponding migration.
 
 ---
 
-# 18. Smoke Tests
+## 15. Database Backups
 
-After deployment, critical flows SHOULD be verified.
+Production database backups are required.
+
+Backups should be:
+
+* Automated when the hosting provider supports it
+* Tested periodically
+* Retained for an appropriate period
+* Protected from public access
+
+A backup that has never been tested should not be considered fully reliable.
+
+---
+
+## 16. File Backups
+
+Important application data includes:
+
+* Database
+* Product images
+* Uploaded media
+* Required configuration
+
+These should be included in the hosting provider's backup strategy where possible.
+
+---
+
+## 17. Storage Permissions
+
+Laravel directories that require write access must be writable by the web server.
+
+Typically:
+
+```text
+storage/
+bootstrap/cache/
+```
+
+Do not make the entire project directory publicly writable.
+
+Avoid unsafe permissions such as:
+
+```text
+777
+```
+
+unless there is an exceptional and documented hosting requirement.
+
+---
+
+## 18. Public Files
+
+Only files intended for public access should exist under:
+
+```text
+public/
+```
+
+Do not expose:
+
+* `.env`
+* Database backups
+* Private documents
+* Source configuration
+* Internal logs
+* Credentials
+* Application source code
+
+---
+
+## 19. Storage Links
+
+If Laravel public storage uses the standard symbolic link approach, ensure the production environment supports:
+
+```bash
+php artisan storage:link
+```
+
+If symbolic links are not supported by the hosting environment, use a deployment-compatible storage strategy that keeps private files protected.
+
+---
+
+## 20. Build Process
+
+Frontend assets should be built before production deployment.
+
+Typical development/build process:
+
+```bash
+npm install
+npm run build
+```
+
+The resulting assets should be deployed with the application.
+
+Node.js does not need to remain running after the build.
+
+---
+
+## 21. Production Runtime
+
+PONT CAFE is primarily a server-rendered Laravel application.
+
+Do not require a persistent Node.js server for normal operation.
+
+The production request flow should be:
+
+```text
+Browser
+   ↓
+Web Server
+   ↓
+Laravel
+   ↓
+MySQL
+   ↓
+Blade Response
+```
+
+---
+
+## 22. Composer Dependencies
+
+Production dependencies must be installed using Composer.
+
+Use the production-oriented installation process:
+
+```bash
+composer install --no-dev --optimize-autoloader
+```
+
+Do not deploy unnecessary development dependencies.
+
+---
+
+## 23. Laravel Optimization
+
+After deployment, apply appropriate Laravel production optimizations.
 
 Examples:
 
-* application loads
-* authentication works
-* public routes work
-* API responds
-* database reads work
-* database writes work
-* critical Feature works
-* payment flow works where applicable
-* admin access works
-* authorization works
-
-Smoke tests MUST use safe test procedures and MUST NOT corrupt production data.
-
----
-
-# 19. Rollback
-
-Every production deployment SHOULD have a documented rollback strategy.
-
-Rollback MAY involve:
-
-* previous application version
-* previous container/image
-* previous hosting release
-* feature flag disablement
-* backward-compatible database handling
-
-Database rollback MUST be treated separately from application rollback.
-
-A deployment MUST NOT claim to be safely reversible when irreversible data changes have occurred without a recovery strategy.
-
----
-
-# 20. Feature Flags
-
-Feature flags MAY be used for:
-
-* gradual rollout
-* risky Features
-* experimental functionality
-* staged activation
-* emergency disablement
-
-Feature flags MUST have:
-
-* owner
-* purpose
-* default behavior
-* activation strategy
-* removal plan
-
-Do not accumulate permanent unused flags.
-
----
-
-# 21. Zero-Downtime Considerations
-
-For systems requiring availability, deployments SHOULD consider:
-
-* backward compatibility
-* connection handling
-* graceful shutdown
-* health checks
-* rolling deployments
-* startup time
-* migration ordering
-
-Do not claim zero downtime unless the deployment architecture actually supports it.
-
----
-
-# 22. Static Assets & Caching
-
-When deploying frontend assets:
-
-* asset versioning SHOULD be used where appropriate
-* cache behavior MUST be understood
-* stale assets MUST NOT break application/API compatibility
-* HTML and static asset caching MUST be compatible
-
-Deployment MUST account for clients that temporarily hold older cached assets.
-
----
-
-# 23. Domains & HTTPS
-
-Production public services MUST use HTTPS.
-
-Verify:
-
-* domain configuration
-* TLS certificate
-* redirects
-* canonical host
-* security headers
-* environment-specific domains
-
-HTTP-to-HTTPS behavior MUST NOT create redirect loops.
-
----
-
-# 24. Observability
-
-Production deployments MUST be observable enough to detect critical failures.
-
-Where applicable monitor:
-
-* deployment status
-* application errors
-* API errors
-* latency
-* availability
-* database failures
-* authentication failures
-* infrastructure failures
-* unusual traffic
-
-Observability requirements remain governed by `OBSERVABILITY_RULES.md`.
-
----
-
-# 25. Deployment Security
-
-Production deployment MUST enforce:
-
-* least privilege
-* protected secrets
-* secure CI credentials
-* protected production environments
-* restricted deployment permissions
-* dependency integrity
-* auditability
-
-CI/CD credentials MUST NOT be embedded in source code.
-
----
-
-# 26. Dependency Changes
-
-New dependencies MUST be reviewed before production deployment.
-
-Evaluate:
-
-* necessity
-* maintenance
-* license
-* security
-* bundle impact
-* transitive dependencies
-* compatibility
-
-Dependency installation MUST NOT silently introduce unrelated packages.
-
----
-
-# 27. Production Data
-
-Production data MUST NOT be used for development or testing unless explicitly authorized and appropriately protected.
-
-Never use:
-
-* real customer credentials
-* real payment data
-* unnecessary personal data
-* sensitive production records
-
-for ordinary development testing.
-
----
-
-# 28. Backups & Recovery
-
-Projects with important production data MUST have an appropriate backup strategy.
-
-Verify:
-
-* backup exists
-* retention is appropriate
-* restoration process is documented
-* restoration has been tested where practical
-
-A backup that cannot be restored reliably MUST NOT be treated as sufficient recovery protection.
-
----
-
-# 29. Deployment Failure
-
-If deployment fails:
-
-1. stop further rollout when appropriate
-2. identify the failing stage
-3. preserve logs/evidence
-4. determine impact
-5. rollback or repair safely
-6. verify system health
-7. verify critical user flows
-8. document the cause
-9. prevent recurrence where practical
-
-Do not hide deployment failures by bypassing CI checks.
-
----
-
-# 30. Post-Deployment Verification
-
-After production deployment verify:
-
-```text id="d009"
-Version
-↓
-Health
-↓
-Critical Routes
-↓
-Authentication
-↓
-Authorization
-↓
-API
-↓
-Database
-↓
-Critical User Journeys
-↓
-Monitoring
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 ```
 
-Only then may the release be considered successfully deployed.
+Only cache configuration/routes when the application structure is compatible with those caches.
 
 ---
 
-# 31. AI Prohibitions
+## 24. Cache
 
-AI MUST NOT:
+The initial production deployment should use a simple supported cache driver.
 
-* deploy directly to production without authorization
-* expose secrets
-* commit credentials
-* disable CI checks
-* bypass tests
-* bypass security checks
-* target production Firebase accidentally
-* run destructive production migrations without explicit approval
-* claim successful deployment without verification
-* assume build success means deployment success
-* assume deployment success means application health
-* silently modify infrastructure
-* silently change deployment architecture
-* delete production data to resolve deployment problems
+File or database cache is acceptable.
+
+Redis is not required for V1.
+
+Do not introduce Redis merely because it is commonly used in larger Laravel applications.
 
 ---
 
-# 32. Completion Gate
+## 25. Queue Workers
 
-A production deployment is complete only when:
+PONT CAFE V1 should not require background queue workers unless a real feature requires them.
 
-```text id="d010"
-Code Verified
-↓
-CI Passed
-↓
-Build Passed
-↓
-Security Checks Passed
-↓
-Deployment Succeeded
-↓
-Health Checks Passed
-↓
-Smoke Tests Passed
-↓
-Monitoring Confirmed
-↓
-Rollback Strategy Confirmed
-↓
-Release Reported
+Do not introduce:
+
+* Supervisor
+* Redis queues
+* Horizon
+
+without a concrete requirement.
+
+---
+
+## 26. Scheduler
+
+Laravel Scheduler should only be configured if the application actually requires scheduled tasks.
+
+If required, configure the hosting provider's cron system according to its supported method.
+
+Do not add cron jobs that serve no purpose.
+
+---
+
+## 27. Cron
+
+If Laravel Scheduler is used, the production server should execute the Laravel scheduler at the required interval.
+
+Typical Laravel configuration:
+
+```text
+* * * * * php /path/to/project/artisan schedule:run
 ```
 
-Final report:
+The exact command must match the hosting environment.
 
-```text id="d011"
-Deployment Status: PASS
+---
 
-Environment:
-[LOCAL / STAGING / PRODUCTION]
+## 28. HTTPS
 
-Version:
-[VERSION / COMMIT]
+Production must use HTTPS.
 
-Build:
-PASS
+HTTP requests should redirect to HTTPS when supported by the hosting environment.
 
-Tests:
-PASS
+Do not transmit authentication credentials or sensitive data over plain HTTP.
 
-Security:
-PASS
+---
 
-Deployment:
-PASS
+## 29. SSL
 
-Health:
-PASS
+The production domain must have a valid SSL certificate.
 
-Smoke Test:
-PASS
+The certificate must be:
 
-Monitoring:
-PASS
+* Valid
+* Not expired
+* Correctly configured
+* Trusted by modern browsers
 
-Rollback:
-[READY / N/A]
+---
 
-Release:
-COMPLETE
+## 30. Domain Configuration
+
+The production domain must point to the correct hosting environment.
+
+The web server document root must point to Laravel's `public/` directory.
+
+Do not expose the Laravel project root through the domain.
+
+---
+
+## 31. Error Handling
+
+Production errors must not expose internal technical details.
+
+Users should receive an appropriate application error page.
+
+Logs should contain the technical details needed for troubleshooting.
+
+---
+
+## 32. Logging
+
+Laravel logging must be enabled in production.
+
+Logs must not contain:
+
+* Passwords
+* API secrets
+* Database passwords
+* Authentication tokens
+* Other sensitive information
+
+Logs should be rotated or managed according to the hosting environment.
+
+---
+
+## 33. Deployment Safety
+
+Before deploying a significant change:
+
+1. Verify the code.
+2. Run relevant tests.
+3. Review database changes.
+4. Back up important production data.
+5. Deploy.
+6. Run required migrations.
+7. Clear/rebuild appropriate caches.
+8. Verify the application.
+
+---
+
+## 34. Zero-Downtime Expectations
+
+Full zero-downtime infrastructure is not required for PONT CAFE V1.
+
+The priority is:
+
+* Correct deployment
+* Short maintenance windows
+* Data safety
+* Reliable recovery
+
+Do not introduce complex deployment infrastructure solely to achieve zero downtime.
+
+---
+
+## 35. Git Deployment
+
+Git may be used as the source-control mechanism.
+
+Production deployment may use:
+
+* Git-based deployment
+* Hosting control panel deployment
+* Manual file deployment
+* CI/CD when supported
+
+The chosen method must match the actual hosting capabilities.
+
+---
+
+## 36. CI/CD
+
+CI/CD is optional for V1.
+
+Do not require GitHub Actions or another CI/CD system if the hosting environment does not support automatic deployment.
+
+If CI/CD is introduced, it must:
+
+* Run tests
+* Build assets
+* Protect secrets
+* Avoid exposing credentials
+* Deploy predictable versions
+
+---
+
+## 37. Shared Hosting Compatibility
+
+The application must remain compatible with standard Linux shared/cloud hosting.
+
+Avoid dependencies that require:
+
+* Docker
+* Kubernetes
+* Long-running Node processes
+* Complex server daemons
+* Redis servers
+* Elasticsearch
+* Specialized infrastructure
+
+unless explicitly required.
+
+---
+
+## 38. PHP Extensions
+
+Before deployment, verify that the hosting environment provides the PHP extensions required by the selected Laravel version and application dependencies.
+
+Do not assume all extensions are available.
+
+---
+
+## 39. PHP Version
+
+Production PHP must meet the version required by the selected Laravel release and project specification.
+
+The project target is:
+
+```text
+PHP 8.3+
+```
+
+Do not silently deploy to an unsupported PHP version.
+
+---
+
+## 40. Database Version
+
+The production MySQL/MariaDB version must be compatible with:
+
+* Laravel
+* PHP
+* Application migrations
+* Eloquent queries
+
+Verify compatibility before deployment.
+
+---
+
+## 41. Asset URLs
+
+Production asset URLs must be generated correctly through Laravel/Vite.
+
+Do not hardcode development URLs such as:
+
+```text
+localhost
+127.0.0.1
+```
+
+into production assets or configuration.
+
+---
+
+## 42. APP_URL
+
+Production `APP_URL` must match the actual application URL.
+
+Example:
+
+```env
+APP_URL=https://example.com
+```
+
+The actual production domain must be configured privately in the deployment environment.
+
+---
+
+## 43. Environment Separation
+
+Development and production environments must remain separate.
+
+Never copy:
+
+* Development database credentials
+* Development secrets
+* Debug configuration
+* Local `.env`
+* Test data
+
+into production.
+
+---
+
+## 44. No Demo Data in Production
+
+Production must not contain fake demonstration data unless that data is intentionally approved as actual initial content.
+
+Menu products and categories must represent real PONT CAFE data.
+
+---
+
+## 45. Production Database Seeding
+
+Seeders may be used for controlled initial configuration.
+
+Do not run destructive seeders against production.
+
+Never use commands or scripts that reset/drop production data unless explicitly intended and safely controlled.
+
+---
+
+## 46. Admin Access
+
+The Admin area must be protected.
+
+Production deployment must verify:
+
+* Admin authentication
+* Authorization
+* Password security
+* HTTPS
+* Session security
+
+Do not expose Admin functionality publicly without authentication.
+
+---
+
+## 47. Security Headers
+
+Where supported by the application/server configuration, use appropriate security headers.
+
+At minimum consider:
+
+* HTTPS enforcement
+* Content-Type protection
+* Frame protection
+* Referrer policy
+
+Security headers must not break the actual application.
+
+---
+
+## 48. Maintenance Mode
+
+Laravel maintenance mode may be used for deployments requiring temporary downtime.
+
+Example:
+
+```bash
+php artisan down
+```
+
+After deployment:
+
+```bash
+php artisan up
+```
+
+Do not leave the application in maintenance mode unintentionally.
+
+---
+
+## 49. Deployment Verification
+
+After every production deployment, verify at minimum:
+
+### Customer
+
+* Homepage loads
+* Cafe navigation works
+* Restaurant navigation works
+* Categories load
+* Products load
+* Product detail works
+* Language switching works
+* RTL/LTR works
+* Sold-out state works
+* Service-hour state works
+* Images load
+
+### Admin
+
+* Admin login works
+* Dashboard loads
+* Category management works
+* Product management works
+* Image upload works
+* Service hours work
+* Settings work where implemented
+
+---
+
+## 50. Database Verification
+
+After deployment verify:
+
+* Database connection
+* Migrations
+* Categories
+* Products
+* Translations
+* Images
+* Service hours
+* Admin users
+
+No production feature should silently fall back to fake or in-memory data.
+
+---
+
+## 51. Performance Verification
+
+After deployment check:
+
+* Initial page load
+* Image loading
+* Database query count where relevant
+* JavaScript bundle size
+* CSS bundle size
+* Cache behavior
+* Mobile performance
+
+The menu should remain fast on mobile connections.
+
+---
+
+## 52. Mobile Verification
+
+Verify the production site at minimum at:
+
+```text
+320px
+360px
+375px
+390px
+414px
+```
+
+Also verify desktop widths.
+
+No horizontal scrolling should appear because of implementation errors.
+
+---
+
+## 53. Rollback
+
+A deployment process should have a recovery strategy.
+
+If a deployment introduces a critical failure:
+
+1. Identify the failed change.
+2. Restore the previous working application version when possible.
+3. Restore the database only when necessary.
+4. Preserve data created after deployment when possible.
+5. Verify the restored application.
+
+Database rollback must be handled carefully because application code and schema must remain compatible.
+
+---
+
+## 54. Monitoring
+
+PONT CAFE V1 does not require complex observability infrastructure.
+
+At minimum, monitor:
+
+* Application availability
+* Laravel errors
+* Database errors
+* Storage failures
+* SSL expiration
+* Hosting resource usage
+
+Use the hosting provider's monitoring where sufficient.
+
+---
+
+## 55. Cost Control
+
+Deployment should remain appropriate for a small menu application.
+
+Avoid unnecessary infrastructure such as:
+
+* Kubernetes
+* Multiple application servers
+* Redis clusters
+* Dedicated queues
+* External databases
+* External storage
+* Complex monitoring platforms
+
+unless actual traffic or requirements justify them.
+
+---
+
+## 56. Disaster Recovery
+
+The deployment environment should provide a practical recovery path.
+
+Required priorities:
+
+1. Database backup
+2. Media backup
+3. Source code in Git
+4. Environment configuration stored securely
+5. Ability to redeploy Laravel
+6. Ability to restore database and media
+
+---
+
+## 57. No Infrastructure Lock-In
+
+The application should remain portable.
+
+Core functionality should not depend on a single proprietary cloud platform.
+
+The project should be deployable to another compatible Linux + PHP + MySQL environment with reasonable effort.
+
+---
+
+## 58. Deployment Documentation
+
+The project should maintain a concise deployment procedure covering:
+
+* Server requirements
+* PHP version
+* Database setup
+* Environment variables
+* Composer installation
+* Asset build
+* Migrations
+* Storage setup
+* Cache setup
+* Domain/SSL configuration
+* Verification
+
+Do not create unnecessarily complex deployment documentation.
+
+---
+
+## 59. Final Production Checklist
+
+Before declaring production deployment complete:
+
+```text
+[ ] PHP version verified
+[ ] Database created
+[ ] Production .env configured
+[ ] APP_KEY configured
+[ ] APP_DEBUG=false
+[ ] APP_ENV=production
+[ ] APP_URL configured
+[ ] Composer dependencies installed
+[ ] Frontend assets built
+[ ] Laravel public/ configured as document root
+[ ] Storage configured
+[ ] Migrations completed
+[ ] Database backup available
+[ ] HTTPS active
+[ ] Admin authentication verified
+[ ] Customer menu verified
+[ ] Languages verified
+[ ] RTL/LTR verified
+[ ] Images verified
+[ ] Availability states verified
+[ ] Error handling verified
+[ ] Mobile layouts verified
+[ ] Production logs verified
+[ ] No fake production data
+```
+
+---
+
+## 60. Final Rule
+
+The deployment principle for PONT CAFE is:
+
+> Keep production simple, secure, portable, reliable, and appropriate for the real size of the project.
+
+Use Laravel + PHP + MySQL on compatible Linux hosting.
+
+Do not introduce unnecessary cloud services or infrastructure.
+
+The application must remain operational without Firebase or another foreign cloud platform being required for its core functionality.
+
+Every deployment must protect production data, application secrets, user access, and the ability to recover from failure.
+
+```
+
+
+بعدی می‌ریم سراغ **`PERFORMANCE_RULES.md`**.
 ```
