@@ -1,1265 +1,1000 @@
-# CODING RULES
 
-## 1. PURPOSE
+# CODING RULES — PONT CAFE
 
-This document defines mandatory coding rules for all projects.
-
-It controls:
-
-* Code structure
-* React development
-* TypeScript
-* Components
-* Hooks
-* State
-* Business logic
-* API integration
-* Error handling
-* Validation
-* Naming
-* Reusability
-* Dependencies
-* Testing boundaries
-* Git changes
-* Code quality
-
-These rules apply to both human and AI-generated code.
+Version: 1.0
+Status: Active
+Project: PONT CAFE Digital Menu
 
 ---
 
-# 2. CORE PRINCIPLE
+## 1. Purpose
 
-Code MUST be:
+This document defines the coding standards for the PONT CAFE project.
 
-* Correct
-* Typed
-* Readable
-* Maintainable
-* Reusable
-* Testable
-* Predictable
-* Secure
-* Consistent with the architecture
+The goal is to keep the codebase:
 
-Working code is NOT automatically good code.
+- Simple
+- Maintainable
+- Consistent
+- Secure
+- Testable
+- Production-ready
+- Appropriate for the actual project scope
 
-The goal is not:
-
-"Make the feature work."
-
-The goal is:
-
-"Make the feature work correctly within the architecture."
+These rules apply to all Laravel, PHP, Blade, JavaScript, CSS, database, and configuration code.
 
 ---
 
-# 3. BEFORE WRITING CODE
+## 2. Source of Truth
 
-AI MUST NOT immediately start coding.
+`PROJECT_SPEC.md` is the primary project-specific source of truth.
 
-Before implementation:
+If this document conflicts with `PROJECT_SPEC.md`, the project specification takes priority.
 
-1. Read `AGENTS.md`
-2. Read `PROJECT_SPEC.md`
-3. Read `ARCHITECTURE.md`
-4. Read `DESIGN_SYSTEM.md`
-5. Read the relevant rules files
-6. Inspect the existing codebase
-7. Identify reusable components
-8. Identify existing services/utilities/hooks
-9. Identify affected frontend/backend/database/API areas
-10. Identify tests that must change or be added
-
-If an existing implementation already solves the problem, reuse or extend it.
+Do not introduce technologies, features, architecture, or dependencies that are outside the project specification without approval.
 
 ---
 
-# 4. NO DUPLICATE LOGIC
+## 3. Technology Stack
 
-Do NOT copy and paste logic between files.
+The production stack is:
 
-Bad:
+- Laravel
+- PHP 8.3+
+- MySQL or MariaDB
+- Blade
+- Tailwind CSS
+- Alpine.js only when useful
+- Vite
+- Linux hosting
 
-```text
-ProductPage
-ProductCard
-AdminProduct
-CheckoutProduct
-```
+Do not introduce React, Vue, Next.js, Firebase, Node.js runtime requirements, or other major frameworks unless the project specification is explicitly changed.
 
-all implementing their own price calculation.
-
-Good:
-
-```text
-pricing/
-└── calculatePrice()
-```
-
-Business rules MUST have one authoritative implementation.
+Node/npm may be used during development/build processes when required by Vite, but Node.js must not be required as the production application runtime.
 
 ---
 
-# 5. SINGLE RESPONSIBILITY
+## 4. Production-Ready Code
 
-A module, function or component should have one clear responsibility.
+Production code must be real.
 
-Avoid components such as:
+Do not implement production functionality using:
 
-```text
-MegaPage.tsx
-HugeDashboard.tsx
-Everything.tsx
-```
+- Fake data
+- Mock data
+- Static arrays
+- Placeholder business logic
+- Simulated API responses
+- Fake database records
+- Temporary hardcoded workflows
 
-A component that handles:
-
-* UI
-* API calls
-* validation
-* business calculations
-* database logic
-* notifications
-* routing
-* permissions
-
-simultaneously MUST be reviewed and decomposed.
+If a feature requires persistent data, it must use the real database.
 
 ---
 
-# 6. COMPONENT SIZE
+## 5. Laravel Conventions
 
-There is no universal numeric line limit.
+Follow standard Laravel conventions whenever practical.
 
-However, a component SHOULD be split when it has:
+Use:
 
-* multiple independent responsibilities
-* repeated UI structures
-* complex state transitions
-* large conditional rendering
-* embedded business logic
-* unrelated API operations
-* difficult testing requirements
+- Controllers
+- Models
+- Form Requests
+- Policies
+- Services when business logic justifies them
+- Eloquent relationships
+- Middleware
+- Blade components
+- Migrations
+- Seeders
+- Feature tests
 
-Component extraction MUST improve responsibility boundaries.
-
-Do not split components purely to create dozens of meaningless files.
+Do not create unnecessary architectural layers.
 
 ---
 
-# 7. REACT COMPONENT RULES
+## 6. Keep Controllers Thin
 
-React components MUST remain focused on presentation and UI behavior.
+Controllers should coordinate requests and responses.
 
-Business logic SHOULD live outside the visual component when it is reusable or complex.
+Avoid placing large business logic blocks inside controllers.
 
 Preferred structure:
 
 ```text
-Page
- ↓
-Feature
- ↓
-Components
- ↓
-UI primitives
-```
+Route
+  ↓
+Controller
+  ↓
+Service / Model
+  ↓
+Database
+````
 
-Components MUST be reusable when the same behavior appears in multiple places.
-
----
-
-# 8. REACT PURITY
-
-Components and Hooks MUST be pure.
-
-Do NOT perform side effects during render.
-
-Do NOT:
-
-```text
-fetch()
-localStorage.setItem()
-document manipulation
-random generation
-date/time generation
-global mutation
-```
-
-directly during rendering.
-
-Side effects belong in appropriate event handlers, effects, services or other controlled boundaries.
-
-React props and state MUST NOT be mutated directly.
+For simple CRUD operations, a Service is not mandatory if it would only wrap one Eloquent call.
 
 ---
 
-# 9. REACT HOOKS
+## 7. Business Logic
 
-Hooks MUST follow the Rules of Hooks.
-
-Hooks MUST:
-
-* be called at the top level
-* be called only from React components or custom Hooks
-* remain deterministic
-* avoid hidden side effects
-* have correct dependencies
-
-Do NOT call Hooks:
-
-```text
-inside if
-inside loops
-inside nested functions
-inside callbacks
-after conditional returns
-```
-
-Custom Hooks SHOULD represent reusable behavior, not simply hide large amounts of unrelated code.
-
----
-
-# 10. STATE MANAGEMENT
-
-State MUST have a clear owner.
-
-Prefer the smallest appropriate scope.
-
-Use:
-
-```text
-Local state
-```
-
-when only one component needs it.
-
-Use:
-
-```text
-Shared state
-```
-
-when multiple related components require it.
-
-Use:
-
-```text
-Global state
-```
-
-only when the state genuinely belongs to the application.
-
-Do NOT put every piece of state into a global store.
-
----
-
-# 11. DERIVED STATE
-
-Do not store data that can be calculated from existing state.
-
-Bad:
-
-```text
-items
-totalItems
-```
-
-when `totalItems` can be derived from `items`.
-
-Good:
-
-```text
-items
-→ calculate totalItems
-```
-
-This prevents state duplication and synchronization bugs.
-
----
-
-# 12. TYPESCRIPT
-
-TypeScript MUST use strong typing.
-
-The project SHOULD enable:
-
-```json
-{
-  "compilerOptions": {
-    "strict": true
-  }
-}
-```
-
-The `strict` family provides stronger guarantees and should be the default baseline.
-
----
-
-# 13. NO UNNECESSARY `any`
-
-`any` MUST NOT be used merely to bypass TypeScript errors.
-
-Bad:
-
-```ts
-const data: any = response;
-```
-
-Preferred:
-
-```ts
-const data: ProductResponse = response;
-```
-
-If `any` is unavoidable because of an external boundary:
-
-1. isolate it
-2. document why
-3. validate the value
-4. convert it into a known type immediately
-
----
-
-# 14. UNKNOWN OVER ANY
-
-When external data has an unknown shape, prefer:
-
-```ts
-unknown
-```
-
-over:
-
-```ts
-any
-```
-
-Then validate/narrow it before use.
-
----
-
-# 15. RUNTIME VALIDATION
-
-TypeScript does not validate runtime data.
-
-All external input MUST be treated as untrusted.
-
-Validate:
-
-* API responses
-* request bodies
-* query parameters
-* URL parameters
-* form submissions
-* environment variables
-* external service responses
-* imported user data
-
-Validation should happen at system boundaries.
-
----
-
-# 16. API DATA TYPES
-
-API contracts MUST have explicit types.
-
-Do NOT pass untyped API objects throughout the application.
-
-Preferred:
-
-```text
-API Response
-↓
-Validation
-↓
-Typed Domain/Application Data
-↓
-UI
-```
-
-The UI should not directly depend on unknown backend shapes.
-
----
-
-# 17. BUSINESS LOGIC
-
-Business logic MUST NOT be duplicated inside UI components.
-
-Avoid:
-
-```tsx
-if (user.role === ...)
-```
-
-spread throughout the application.
-
-Prefer centralized:
-
-```text
-authorization rules
-permission helpers
-domain rules
-use cases
-services
-```
-
-when the rule is reused or security-sensitive.
-
----
-
-# 18. SECURITY-SENSITIVE LOGIC
-
-Frontend checks are NOT security controls.
+Business rules must have a clear and centralized location.
 
 Examples:
 
-```text
-role
-permission
-price
-discount
-ownership
-inventory
-order status
-payment status
-admin access
-```
+* Product availability
+* Service-hour logic
+* Category visibility
+* Product status
+* Menu visibility
 
-MUST be enforced server-side.
-
-Frontend checks may improve UX but MUST NOT be trusted for authorization.
+Do not duplicate the same business rule across multiple controllers or views.
 
 ---
 
-# 19. ASYNC CODE
+## 8. Services
 
-Async operations MUST handle:
+Create a Service when business logic:
 
-* loading
-* success
-* failure
-* cancellation/race conditions where applicable
-* unexpected responses
+* Is reused
+* Contains multiple steps
+* Requires coordination between multiple models
+* Would make a controller difficult to understand
+* Represents an important domain operation
 
-Do not silently ignore rejected Promises.
-
-Bad:
-
-```ts
-saveData();
-```
-
-when failure can occur and no handling exists.
+Do not create a Service class for every simple CRUD method.
 
 ---
 
-# 20. ERROR HANDLING
+## 9. Models
 
-Errors MUST be handled at the correct boundary.
+Eloquent Models should represent database entities and relationships.
 
-Do NOT use:
+Use Models for:
 
-```ts
-catch {
-  // ignore
-}
-```
+* Relationships
+* Query scopes
+* Simple model-specific behavior
+* Database interaction appropriate to the model
 
-unless intentionally justified.
-
-Errors should be:
-
-* logged appropriately
-* transformed into safe user-facing messages
-* handled by the correct UI state
-* prevented from exposing sensitive information
+Avoid putting unrelated application logic inside Models.
 
 ---
 
-# 21. USER-FACING ERROR MESSAGES
+## 10. Eloquent Relationships
 
-Never expose raw technical errors directly to users.
-
-Bad:
-
-```text
-FirestoreError: PERMISSION_DENIED...
-```
-
-Good:
-
-```text
-We couldn't save your changes. Please try again.
-```
-
-Detailed technical information belongs in logs/diagnostics.
-
----
-
-# 22. LOADING STATES
-
-Every async UI operation that can take noticeable time MUST have an appropriate loading state.
-
-Examples:
-
-```text
-Button → loading state
-Page → skeleton/loading state
-Table → loading state
-Form → submission state
-```
-
-Do not freeze the interface without feedback.
-
----
-
-# 23. EMPTY STATES
-
-Data-driven components MUST define meaningful empty states.
+Define relationships explicitly.
 
 Example:
 
-```text
-No products found.
+```php
+public function translations()
+{
+    return $this->hasMany(ProductTranslation::class);
+}
 ```
 
-is preferable to:
-
-```text
-blank screen
-```
-
-Empty state may include:
-
-* explanation
-* next action
-* reset filters
-* create action
-
-when appropriate.
+Use relationships instead of manually repeating database joins when Eloquent relationships are appropriate.
 
 ---
 
-# 24. COMPONENT PROPS
+## 11. Avoid N+1 Queries
 
-Props should be explicit and meaningful.
+Always consider query efficiency.
 
-Avoid:
+Use eager loading when related data is required:
 
-```ts
-isBlue
-isLarge
-hasBorder
-isSpecial
-isAdmin
+```php
+Product::with([
+    'translations',
+    'images',
+])->get();
 ```
 
-when these represent uncontrolled visual variations.
-
-Prefer controlled variants:
-
-```ts
-variant
-size
-tone
-state
-```
-
-that map to the Design System.
+Do not load relationships repeatedly inside Blade loops.
 
 ---
 
-# 25. BOOLEAN PROP EXPLOSION
+## 12. Database Queries
 
-Do not create components with dozens of boolean props.
+Database queries must be:
+
+* Secure
+* Understandable
+* Efficient
+* Relevant to the actual requirement
+
+Do not execute unnecessary queries.
+
+Avoid raw SQL unless Eloquent or Query Builder is not appropriate.
+
+---
+
+## 13. Raw SQL
+
+Raw SQL is allowed only when there is a clear technical reason.
+
+When raw SQL is necessary:
+
+* Use parameter binding
+* Never concatenate user input
+* Keep the query maintainable
+* Document unusual queries when appropriate
+
+Never construct SQL using untrusted input.
+
+---
+
+## 14. Validation
+
+All user-controlled input must be validated on the server.
+
+Prefer Laravel Form Requests for non-trivial validation.
+
+Frontend validation may improve UX, but it must never replace server-side validation.
+
+---
+
+## 15. Mass Assignment
+
+Protect Eloquent Models against mass assignment.
+
+Use:
+
+```php
+protected $fillable = [
+    // allowed fields
+];
+```
+
+or another appropriate Laravel protection mechanism.
+
+Never blindly accept arbitrary request data.
+
+---
+
+## 16. Authorization
+
+Authentication and authorization must be enforced server-side.
+
+Never trust:
+
+* Hidden form fields
+* Client-side permissions
+* JavaScript conditions
+* URL parameters
+* Request payload role values
+
+Admin operations must verify that the authenticated user has permission to perform the action.
+
+---
+
+## 17. Authentication
+
+Customer authentication is not part of PONT CAFE V1.
+
+Admin authentication is required for the management area.
+
+Do not add customer accounts or login flows unless the project specification changes.
+
+---
+
+## 18. Blade Rules
+
+Blade templates should primarily handle presentation.
+
+Avoid placing complex business logic inside Blade.
+
+Do not perform database queries directly inside Blade templates.
 
 Bad:
 
-```tsx
-<Component
-  isLarge
-  isBlue
-  isRounded
-  isDark
-  isCompact
-  isAdmin
-  isSpecial
-/>
+```blade
+@php
+    $products = DB::table('products')->get();
+@endphp
 ```
 
-Prefer:
+Preferred:
 
-```tsx
-<Component
-  variant="primary"
-  size="md"
-/>
+```text
+Controller
+  ↓
+Service / Model
+  ↓
+Blade
 ```
 
 ---
 
-# 26. NAMING
+## 19. Blade Components
 
-Names MUST describe intent.
-
-Prefer:
-
-```text
-calculateOrderTotal()
-validateCoupon()
-createProduct()
-ProductCard
-OrderDetails
-```
-
-Avoid:
-
-```text
-doStuff()
-handleThing()
-processData()
-temp()
-data2()
-componentNew()
-```
-
-Names should be understandable without opening the implementation.
-
----
-
-# 27. FILE NAMING
-
-Use consistent naming.
+Use reusable Blade components for repeated UI patterns.
 
 Examples:
 
-```text
-ProductCard.tsx
-ProductService.ts
-useCart.ts
-orderSchema.ts
-authMiddleware.ts
-```
+* Product card
+* Language switcher
+* Price display
+* Availability state
+* Navigation
+* Admin form fields
+* Buttons
+* Alerts
 
-Avoid:
-
-```text
-productcardfinal.tsx
-ProductCardNew.tsx
-helper2.ts
-utilsFinal.ts
-```
+Do not create duplicate implementations of the same UI pattern.
 
 ---
 
-# 28. UTILITY FUNCTIONS
+## 20. UI Consistency
 
-Do not create giant utility files.
+Follow `DESIGN_SYSTEM.md` and `UX_RULES.md`.
 
-Avoid:
+Do not introduce arbitrary:
 
-```text
-utils.ts
-```
+* Colors
+* Font sizes
+* Spacing values
+* Border radii
+* Shadows
+* Button styles
+* Component styles
 
-containing unrelated functionality.
-
-Prefer domain-focused utilities:
-
-```text
-pricing/
-date/
-validation/
-formatting/
-permissions/
-```
+when an existing project token or component already exists.
 
 ---
 
-# 29. CONSTANTS
+## 21. Responsive Design
 
-Repeated constants MUST have a clear owner.
+The customer menu must be mobile-first.
+
+Supported baseline widths include:
+
+```text
+320
+360
+375
+390
+414
+768
+1024
+1280+
+```
+
+Mobile is not simply a smaller desktop layout.
+
+Layouts should adapt intentionally to mobile.
+
+Avoid:
+
+* Horizontal page scrolling
+* Tiny text
+* Tiny touch targets
+* Desktop tables squeezed into mobile
+* Oversized UI elements
+
+---
+
+## 22. RTL and LTR
+
+The project supports:
+
+```text
+fa
+ar
+en
+```
+
+Persian and Arabic must use RTL.
+
+English must use LTR.
+
+Do not hardcode directional assumptions into reusable components.
+
+Use logical CSS properties where possible.
+
+Prefer:
+
+```css
+margin-inline
+padding-inline
+inset-inline
+border-inline
+```
+
+instead of unnecessary left/right-specific rules.
+
+---
+
+## 23. Typography
+
+Use the project typography defined in `PROJECT_SPEC.md` and `DESIGN_SYSTEM.md`.
+
+Persian and Arabic:
+
+```text
+IranYekan
+```
+
+Do not introduce random fonts.
+
+Do not use unnecessarily large typography.
+
+Typography must remain consistent across customer and admin interfaces.
+
+---
+
+## 24. Accessibility
+
+Interactive elements must be accessible.
+
+Use:
+
+* Semantic HTML
+* Proper labels
+* Keyboard accessibility
+* Visible focus states
+* Appropriate contrast
+* Meaningful alt text
+* Accessible buttons
+* Accessible form controls
+
+Do not rely only on color to communicate state.
+
+---
+
+## 25. Images
+
+Product images must be optimized.
+
+Preferred format:
+
+```text
+WebP
+```
+
+Images should have:
+
+* Appropriate dimensions
+* Useful alt text
+* Lazy loading when appropriate
+* No unnecessary full-resolution assets
+
+Do not load huge source images when a smaller version is sufficient.
+
+---
+
+## 26. Loading States
+
+Loading states must follow the project's UX rules.
+
+The customer menu should feel fast and app-like.
+
+Do not add loading indicators when there is no meaningful asynchronous operation.
+
+The global PONT CAFE loading animation may be used only when the application is genuinely loading.
+
+Do not add unnecessary spinners.
+
+---
+
+## 27. Empty States
+
+Every relevant data-driven view should have an intentional empty state.
 
 Examples:
 
+* Empty category
+* No available products
+* No media
+* No search results
+
+Do not leave blank screens without context.
+
+---
+
+## 28. Error States
+
+Errors must be handled intentionally.
+
+User-facing errors should:
+
+* Be understandable
+* Avoid technical details
+* Provide a useful recovery action when appropriate
+
+Never expose:
+
+* Stack traces
+* SQL queries
+* File system paths
+* Environment variables
+* Credentials
+* Secrets
+
+in production responses.
+
+---
+
+## 29. Naming
+
+Use clear and descriptive names.
+
+PHP:
+
 ```text
-MAX_UPLOAD_SIZE
-ORDER_STATUS
-SUPPORTED_CURRENCIES
-PERMISSION_CODES
+PascalCase
 ```
 
-Do not duplicate magic values throughout the codebase.
+for classes.
+
+Methods and variables:
+
+```text
+camelCase
+```
+
+Database:
+
+```text
+snake_case
+```
+
+Blade files:
+
+```text
+kebab-case
+```
+
+or the established Laravel project convention.
+
+Follow existing naming patterns consistently.
 
 ---
 
-# 30. MAGIC NUMBERS
+## 30. Comments
 
-Avoid unexplained magic numbers.
-
-Bad:
-
-```ts
-if (retryCount > 7)
-```
-
-Better:
-
-```ts
-const MAX_RETRIES = 7;
-```
-
-If the value is part of the Design System, use the relevant token.
-
----
-
-# 31. COMMENTS
-
-Comments should explain WHY, not WHAT.
+Comments should explain why something exists, not simply repeat what the code does.
 
 Bad:
 
-```ts
-// Increment counter
-counter++;
+```php
+// Get products
+$products = Product::all();
 ```
 
 Good:
 
-```ts
-// Prevent duplicate submissions during the server retry window.
+```php
+// Only active products are shown on the public menu.
+$products = Product::where('is_active', true)->get();
 ```
 
-Do not use comments to justify bad architecture.
+Do not over-comment obvious code.
 
 ---
 
-# 32. TODO
+## 31. Type Safety
 
-TODO comments MUST NOT become permanent unfinished functionality.
+Use PHP type declarations whenever practical.
 
-If a TODO represents required work:
+Example:
 
-* create a tracked task
-* document the reason
-* define ownership where appropriate
+```php
+public function show(Product $product): View
+{
+    // ...
+}
+```
 
-Do not ship fake functionality hidden behind TODOs.
+Use appropriate return types and parameter types.
+
+Avoid unnecessary mixed or untyped values.
 
 ---
 
-# 33. NO FAKE FUNCTIONALITY
+## 32. Configuration
 
-The following are prohibited in production unless explicitly defined as a prototype:
+Environment-specific values must come from configuration or `.env`.
+
+Never hardcode:
+
+* Database credentials
+* API keys
+* Secrets
+* Production hostnames
+* Passwords
+
+`.env` must not be committed to Git.
+
+---
+
+## 33. Security
+
+Follow:
+
+* `SECURITY_RULES.md`
+* Laravel security practices
+* Server-side validation
+* Authorization
+* CSRF protection
+* Secure file uploads
+* Safe database queries
+
+Security must not depend on frontend behavior.
+
+---
+
+## 34. Dependencies
+
+Do not add dependencies without a clear reason.
+
+Before adding a package, consider:
+
+1. Is it actually necessary?
+2. Can Laravel already solve the problem?
+3. Can a small local implementation solve it?
+4. Does it increase maintenance cost?
+5. Is it compatible with the hosting environment?
+6. Does it affect performance or security?
+
+Avoid unnecessary packages.
+
+---
+
+## 35. JavaScript
+
+JavaScript should be used only when it improves the user experience or enables behavior that cannot reasonably be handled with standard server-rendered HTML.
+
+Prefer:
+
+* Blade
+* HTML
+* CSS
+* Alpine.js
+
+for simple interactions.
+
+Do not build a JavaScript SPA for this project.
+
+---
+
+## 36. Alpine.js
+
+Use Alpine.js only where useful.
+
+Appropriate examples:
+
+* Mobile navigation
+* Small interactive controls
+* Tabs
+* Dropdowns
+* Lightweight UI state
+* Simple asynchronous interactions
+
+Do not recreate the entire application architecture inside Alpine.js.
+
+---
+
+## 37. Tailwind CSS
+
+Use the project's design tokens and established utility patterns.
+
+Do not create arbitrary one-off visual styles when an existing component or token can be reused.
+
+Avoid excessive class duplication.
+
+Create reusable components when a pattern appears repeatedly.
+
+---
+
+## 38. Routes
+
+Routes should remain clear and intentional.
+
+Avoid unnecessary route duplication.
+
+Use route model binding when appropriate.
+
+Protect Admin routes with the correct authentication and authorization middleware.
+
+---
+
+## 39. Forms
+
+Forms must have:
+
+* Server-side validation
+* CSRF protection
+* Clear labels
+* Error states
+* Appropriate input types
+* Accessible controls
+* Clear success feedback
+
+Do not silently fail submissions.
+
+---
+
+## 40. CRUD
+
+CRUD features must use the real database.
+
+A CRUD feature is not complete if it only changes:
+
+* Frontend state
+* JavaScript arrays
+* Local storage
+* Temporary memory
+
+Production CRUD must persist data correctly.
+
+---
+
+## 41. File Uploads
+
+File uploads must validate:
+
+* File type
+* MIME type
+* File size
+* File extension where appropriate
+
+Use secure generated filenames.
+
+Do not trust the original filename.
+
+---
+
+## 42. Database Migrations
+
+All database schema changes must be represented by migrations.
+
+Do not manually modify production schema without a corresponding migration.
+
+Migrations must be:
+
+* Reproducible
+* Ordered
+* Safe
+* Consistent with Models
+
+---
+
+## 43. Seeders
+
+Seeders may be used for:
+
+* Initial required system data
+* Development data
+* Controlled default configuration
+
+Do not use fake/demo data as a substitute for the actual production database.
+
+---
+
+## 44. Testing
+
+Important application behavior must have automated tests.
+
+Prioritize:
+
+* Authentication
+* Authorization
+* Product CRUD
+* Category CRUD
+* Localization
+* Availability
+* Service hours
+* Public menu visibility
+* Validation
+* Security-sensitive behavior
+
+Follow `TESTING_RULES.md`.
+
+---
+
+## 45. Refactoring
+
+Refactor when it improves:
+
+* Correctness
+* Maintainability
+* Reuse
+* Performance
+* Security
+
+Do not perform large unrelated refactors during a feature implementation.
+
+Keep changes focused on the current phase and feature.
+
+---
+
+## 46. No Duplicate Implementations
+
+Before creating a new:
+
+* Component
+* Service
+* Helper
+* Model method
+* UI pattern
+* Validation rule
+
+check whether an existing implementation can be reused.
+
+The project should have one clear implementation for each shared responsibility.
+
+---
+
+## 47. No Overengineering
+
+Do not introduce architecture that the project does not need.
+
+Avoid unnecessary:
+
+* Repositories
+* Interfaces
+* Abstract factories
+* Event systems
+* Microservices
+* APIs
+* Queues
+* Redis
+* Complex state management
+
+unless a real requirement justifies them.
+
+---
+
+## 48. Performance
+
+Performance must be considered during implementation.
+
+Prefer:
+
+* Server-side rendering
+* Efficient database queries
+* Eager loading
+* Image optimization
+* Browser caching
+* Laravel caching where appropriate
+* OPcache in production
+* Minimal JavaScript
+
+Do not optimize prematurely without evidence.
+
+---
+
+## 49. Scope Protection
+
+PONT CAFE V1 is a digital menu.
+
+Do not implement:
+
+* Online ordering
+* Cart
+* Checkout
+* Payment
+* Delivery
+* Reservations
+* Customer accounts
+* Ratings
+* Favorites
+* AI assistant
+* Push notifications
+* Crypto wallet
+* Complex analytics
+
+unless the project specification is explicitly changed.
+
+---
+
+## 50. Feature Workflow
+
+Before implementing a feature:
+
+1. Identify the current phase.
+2. Read the relevant project rules.
+3. Inspect the existing implementation.
+4. Reuse existing components and logic.
+5. Define the smallest correct implementation.
+6. Implement backend/database requirements.
+7. Implement frontend/UI requirements.
+8. Add validation and authorization where required.
+9. Add loading, empty, and error states where relevant.
+10. Test the feature.
+11. Check responsive behavior.
+12. Check RTL/LTR behavior.
+13. Perform a focused security and UX review.
+
+---
+
+## 51. Do Not Build Everything at Once
+
+Implementation must be phase-based and feature-based.
+
+Do not give instructions such as:
 
 ```text
-fake API
-fake database
-mock success response
-hardcoded product data
-fake payment success
-fake authentication
-fake permissions
-fake order creation
-fake inventory
+Build the entire application.
 ```
 
-If the feature is not connected to its real boundary, it is incomplete.
+Instead implement one defined feature or phase at a time.
+
+Each phase must be integrated and verified before moving to the next phase.
 
 ---
 
-# 34. NO SILENT FALLBACKS
+## 52. Existing Architecture First
 
-Do not hide system failures by silently falling back to fake data.
+Before creating new files or changing architecture:
 
-Bad:
+* Inspect the current codebase.
+* Identify existing patterns.
+* Reuse existing components.
+* Reuse existing services.
+* Reuse existing database structures where appropriate.
 
-```text
-API fails
-↓
-show hardcoded products
+Do not replace working architecture without a documented reason.
+
+---
+
+## 53. Change Safety
+
+Do not modify:
+
+* Core architecture
+* Database structure
+* Authentication
+* Design system
+* Project rules
+* Project specification
+
+as an incidental side effect of implementing an unrelated feature.
+
+If such a change is necessary, identify it explicitly before implementation.
+
+---
+
+## 54. Production Verification
+
+Before considering a feature complete, verify:
+
+* Database persistence
+* Server-side validation
+* Authorization
+* Error handling
+* Responsive behavior
+* RTL/LTR
+* Accessibility
+* Performance
+* Security
+* Real data flow
+* No fake/mock implementation
+* No console errors
+* No unnecessary dependencies
+
+---
+
+## 55. Final Rule
+
+The coding principle for PONT CAFE is:
+
+> Build the simplest correct production implementation that satisfies the project specification.
+
+Do not overengineer.
+
+Do not create fake functionality.
+
+Do not add unnecessary technologies.
+
+Do not duplicate existing logic.
+
+Do not sacrifice security, accessibility, UX, or data integrity for speed.
+
+Every implementation should be real, maintainable, consistent with the project architecture, and appropriate for the actual scope of PONT CAFE.
+
 ```
 
-This creates false production behavior.
-
-The system should instead expose an appropriate loading/error/empty state.
-
----
-
-# 35. DATABASE ACCESS
-
-Frontend code MUST NOT directly access the production database unless the architecture explicitly defines that pattern.
-
-Preferred:
-
-```text
-UI
-↓
-Application/API
-↓
-Backend
-↓
-Database
 ```
-
-Database logic belongs to the appropriate infrastructure boundary.
-
----
-
-# 36. API CALLS
-
-Do not scatter raw API calls throughout random components.
-
-Prefer centralized API clients/services.
-
-Bad:
-
-```text
-ProductPage → fetch()
-ProductCard → fetch()
-AdminProduct → fetch()
-```
-
-without a defined API boundary.
-
-Preferred:
-
-```text
-api/
-services/
-features/
-```
-
-with clear ownership.
-
----
-
-# 37. ENVIRONMENT VARIABLES
-
-Secrets MUST NOT be hardcoded.
-
-Never commit:
-
-```text
-API keys
-private keys
-database credentials
-tokens
-passwords
-service credentials
-```
-
-Environment configuration MUST follow the project's configuration architecture.
-
----
-
-# 38. DEPENDENCIES
-
-Do not install a dependency for a trivial function that can be safely implemented with existing platform capabilities.
-
-Before adding a dependency:
-
-1. Check existing dependencies.
-2. Check native platform support.
-3. Check project architecture.
-4. Check maintenance/security status.
-5. Confirm the dependency is actually necessary.
-
-Do not add libraries simply because AI commonly uses them.
-
----
-
-# 39. IMPORT RULES
-
-Imports should be:
-
-* explicit
-* organized
-* minimal
-* stable
-
-Remove unused imports.
-
-Avoid circular dependencies.
-
-Architecture boundaries MUST be respected.
-
----
-
-# 40. DEPENDENCY DIRECTION
-
-Dependencies should flow according to `ARCHITECTURE.md`.
-
-Higher-level UI code MUST NOT bypass application/domain boundaries simply because direct access is easier.
-
-Avoid:
-
-```text
-Component
-↓
-Database
-```
-
-when the architecture requires:
-
-```text
-Component
-↓
-Application/API
-↓
-Infrastructure
-↓
-Database
-```
-
----
-
-# 41. TESTABILITY
-
-Code should be structured so important behavior can be tested independently.
-
-Business rules should not be tightly coupled to:
-
-* DOM
-* browser globals
-* database implementations
-* network calls
-
-when separation is practical.
-
----
-
-# 42. CHANGES MUST INCLUDE RELATED TESTS
-
-When changing behavior:
-
-```text
-Code change
-+
-Affected tests
-```
-
-should normally be updated together.
-
-Do not change production behavior and leave known outdated tests behind.
-
----
-
-# 43. REFACTORING
-
-Refactoring MUST preserve behavior unless the task explicitly changes behavior.
-
-A refactor should:
-
-* improve structure
-* reduce duplication
-* improve readability
-* preserve contracts
-* keep tests passing
-
-Do not combine large unrelated refactors with feature work unless necessary.
-
----
-
-# 44. SMALL CHANGES
-
-Prefer small, focused changes.
-
-A change should ideally have:
-
-```text
-one purpose
-one logical scope
-clear verification
-```
-
-Avoid mixing:
-
-```text
-new feature
-unrelated redesign
-dependency migration
-database rewrite
-large refactor
-```
-
-in one uncontrolled change.
-
----
-
-# 45. CODE REVIEW
-
-Every significant change should be reviewable.
-
-Review for:
-
-* correctness
-* architecture
-* functionality
-* complexity
-* tests
-* naming
-* maintainability
-* security
-* documentation
-* unintended side effects
-
-Code that works but violates architecture MUST NOT automatically pass review.
-
----
-
-# 46. FORMATTING AND LINTING
-
-Projects MUST use automated formatting/linting where practical.
-
-The exact tools are project-specific.
-
-Typical stack:
-
-```text
-TypeScript
-ESLint
-Prettier
-React Hooks linting
-```
-
-Linting MUST be part of the quality process.
-
----
-
-# 47. TYPE ERRORS
-
-Do NOT suppress TypeScript errors merely to make the build pass.
-
-Avoid:
-
-```ts
-// @ts-ignore
-```
-
-unless explicitly justified.
-
-Prefer fixing the underlying type problem.
-
-If suppression is unavoidable, document the reason.
-
----
-
-# 48. BUILD MUST BE CLEAN
-
-Before completion:
-
-```text
-TypeScript
-↓
-Lint
-↓
-Build
-↓
-Tests
-```
-
-must pass according to the project's configured quality gates.
-
-Do not declare completion while known build errors remain.
-
----
-
-# 49. GIT COMMITS
-
-Use Conventional Commits.
-
-Format:
-
-```text
-<type>[optional scope]: <description>
-```
-
-Examples:
-
-```text
-feat: add product filtering
-fix: prevent duplicate order submission
-refactor: simplify cart state
-test: add checkout validation tests
-docs: update architecture rules
-chore: update dependencies
-```
-
-Breaking changes MUST be explicitly identified according to Conventional Commits.
-
----
-
-# 50. COMMIT QUALITY
-
-Commits SHOULD be:
-
-* focused
-* understandable
-* logically grouped
-* independently reviewable
-
-Avoid commits such as:
-
-```text
-fix stuff
-changes
-update
-final
-final2
-```
-
----
-
-# 51. NO UNRELATED CHANGES
-
-When implementing a task, do not silently modify unrelated files or systems.
-
-If an unrelated change is necessary:
-
-1. explain why
-2. identify the dependency
-3. keep the change minimal
-
----
-
-# 52. AI CHANGE CONTROL
-
-AI MUST NOT:
-
-* rewrite architecture without approval
-* replace libraries without reason
-* create duplicate components
-* introduce a new state-management system casually
-* introduce a new styling system casually
-* bypass API boundaries
-* bypass validation
-* bypass authorization
-* disable lint/type checks to finish faster
-* hide errors
-* generate fake functionality
-* silently modify unrelated features
-
----
-
-# 53. AI IMPLEMENTATION LOOP
-
-For each task:
-
-```text
-Read
- ↓
-Understand
- ↓
-Inspect
- ↓
-Plan
- ↓
-Implement
- ↓
-Type Check
- ↓
-Lint
- ↓
-Test
- ↓
-Build
- ↓
-Review
-```
-
-If a step fails, fix it before claiming completion.
-
----
-
-# 54. COMPLETION REPORT
-
-When a coding task is completed, report:
-
-```text
-Implemented:
-- ...
-
-Changed:
-- ...
-
-Tests:
-- ...
-
-Validation:
-- ...
-
-Known limitations:
-- ...
-```
-
-Never report "complete" when important known work remains.
-
----
-
-# 55. DEFINITION OF DONE
-
-Code is complete only when:
-
-* Architecture is respected
-* Types are valid
-* No unjustified `any`
-* No duplicate business logic
-* No fake functionality
-* Errors are handled
-* Loading/empty/error states exist where needed
-* Security boundaries are respected
-* Relevant tests exist
-* Lint passes
-* Type checking passes
-* Build passes
-* Design System rules are respected
-* No unrelated changes were introduced
-
----
-
-# 56. SOURCE OF AUTHORITY
-
-These rules are informed by:
-
-* React official Rules of React
-* React official Hooks guidance
-* TypeScript strict type checking
-* Google Engineering Practices
-* Conventional Commits 1.0.0
-* The project's `ARCHITECTURE.md`
-* The project's `DESIGN_SYSTEM.md`
-* The project's security, API, database and testing rules
-
-Project-specific rules may extend these rules through the appropriate project specification or architecture decision.
-
----
-
-# 57. FINAL RULE
-
-The AI must optimize for:
-
-```text
-Correctness
-+
-Clarity
-+
-Maintainability
-+
-Reusability
-+
-Type Safety
-+
-Testability
-+
-Security
-```
-
-NOT:
-
-```text
-Fastest possible code generation.
-```
-
-If the easiest implementation violates the architecture, Design System or security model, it MUST NOT be used.
