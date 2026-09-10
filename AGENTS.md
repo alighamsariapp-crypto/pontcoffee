@@ -230,4 +230,4 @@ When reporting progress:
 
 Be concise and precise.
 
-Never use "complete", "done", or "production ready" unless the Definition of Done has been satisfied.
+Never use "complete", "done", or "production ready" unless the Definition of Done has been satisfied.   هیچ کدی نمیزنی اول همه چی بخون و بد بگو امادی بقیه دستورات هستی 
